@@ -95,14 +95,12 @@ struct FocusModeView: View {
             updateCurrentTodo()
         }
         .onChange(of: incompleteTodos) { _, _ in
-            // Update immediately when the incomplete todos list changes
             updateCurrentTodo()
         }
         .focusedValue(\.selectedTask, $selectedTodo)
     }
     
     private func nextTask() {
-        print("nextTask called - currentIndex: \(currentTodoIndex), count: \(incompleteTodos.count)")
         if currentTodoIndex < incompleteTodos.count - 1 {
             currentTodoIndex += 1
         } else {
@@ -112,7 +110,6 @@ struct FocusModeView: View {
     }
     
     private func previousTask() {
-        print("previousTask called - currentIndex: \(currentTodoIndex), count: \(incompleteTodos.count)")
         if currentTodoIndex > 0 {
             currentTodoIndex -= 1
         } else {

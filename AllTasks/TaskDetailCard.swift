@@ -4,7 +4,6 @@ import SwiftData
 struct TaskDetailCard: View {
     let todo: TodoItem
     var isEditable: Bool = true
-    var onEditingChanged: ((Bool) -> Void)? = nil
     @State private var editedTitle: String = ""
     @State private var editedDetails: String = ""
     @State private var isEditMode: Bool = false
@@ -48,7 +47,6 @@ struct TaskDetailCard: View {
                 if !isEditable {
                     Button(action: {
                         isEditMode.toggle()
-                        onEditingChanged?(isEditMode)
                     }) {
                         Image(systemName: "square.and.pencil")
                             .font(.title)
@@ -85,11 +83,6 @@ struct TaskDetailCard: View {
             editedTitle = todo.title
             editedDetails = todo.details
             isEditMode = false
-        }
-        .onAppear {
-            if !isEditable {
-                isEditMode = false
-            }
         }
     }
 }
