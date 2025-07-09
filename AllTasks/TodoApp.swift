@@ -12,6 +12,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 struct TodoApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @FocusedValue(\.selectedTask) var selectedTask: Binding<TodoItem?>?
+    @FocusedValue(\.addTaskAction) var addTaskAction: (() -> Void)?
+    @FocusedValue(\.focusListAction) var focusListAction: (() -> Void)?
     @State private var selectedMode: ViewMode = .list
     
     var sharedModelContainer: ModelContainer = {
@@ -43,6 +45,7 @@ struct TodoApp: App {
             CommandMenu("View") {
                 Button("List") {
                     selectedMode = .list
+                    focusListAction?()
                 }
                 .keyboardShortcut("l", modifiers: .command)
                 
@@ -57,6 +60,13 @@ struct TodoApp: App {
                 .keyboardShortcut("p", modifiers: .command)
             }
             CommandMenu("Task") {
+                Button("Add") {
+                    addTaskAction?()
+                }
+                .keyboardShortcut("a", modifiers: .command)
+                
+                Divider()
+                
                 Button("Delete") {
                     if let taskBinding = selectedTask,
                        let task = taskBinding.wrappedValue {

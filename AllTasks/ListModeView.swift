@@ -5,7 +5,7 @@ struct ListModeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var todos: [TodoItem]
     @Binding var selectedTodo: TodoItem?
-    @FocusState private var isFocused: Bool
+    @FocusState var isFocused: Bool
     
     var body: some View {
         HSplitView {

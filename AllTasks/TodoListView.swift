@@ -6,6 +6,8 @@ struct TodoListView: View {
     @Binding var selectedMode: ViewMode
     @State private var selectedTodo: TodoItem?
     @State private var newTodoText: String = ""
+    @FocusState private var isAddFieldFocused: Bool
+    @FocusState private var isListFocused: Bool
     
     var body: some View {
         VStack(spacing: 0) {
@@ -13,6 +15,7 @@ struct TodoListView: View {
                 HStack {
                     TextField("", text: $newTodoText)
                         .textFieldStyle(.plain)
+                        .focused($isAddFieldFocused)
                         .onSubmit {
                             addTodo()
                         }
@@ -41,7 +44,8 @@ struct TodoListView: View {
                 switch selectedMode {
                 case .list:
                     ListModeView(
-                        selectedTodo: $selectedTodo
+                        selectedTodo: $selectedTodo,
+                        isFocused: _isListFocused
                     )
                 case .focus:
                     FocusModeView(selectedTodo: $selectedTodo)
@@ -50,6 +54,13 @@ struct TodoListView: View {
                 }
             }
             .focusedValue(\.selectedTask, $selectedTodo)
+        }
+        .focusedValue(\.addTaskAction) {
+            isAddFieldFocused = true
+        }
+        .focusedValue(\.focusListAction) {
+            isAddFieldFocused = false
+            isListFocused = true
         }
     }
     
