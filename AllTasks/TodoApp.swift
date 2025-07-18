@@ -4,6 +4,7 @@ import AppKit
 
 extension Notification.Name {
     static let createNewTask = Notification.Name("createNewTask")
+    static let editTask = Notification.Name("editTask")
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -76,6 +77,14 @@ struct TodoApp: App {
                 .keyboardShortcut("p", modifiers: .command)
             }
             CommandMenu("Task") {
+                Button("Edit") {
+                    NotificationCenter.default.post(name: .editTask, object: nil)
+                }
+                .keyboardShortcut("e", modifiers: .command)
+                .disabled(selectedTask?.wrappedValue == nil)
+                
+                Divider()
+                
                 Button("Delete") {
                     if let taskBinding = selectedTask,
                        let task = taskBinding.wrappedValue {

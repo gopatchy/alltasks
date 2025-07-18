@@ -5,6 +5,7 @@ struct OneModeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var todos: [TodoItem]
     @State private var currentTodoIndex = 0
+    @FocusState private var isOneModeViewFocused: Bool
     @Binding var selectedTodo: TodoItem?
     
     var incompleteTodos: [TodoItem] {
@@ -76,8 +77,6 @@ struct OneModeView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .focusable()
-        .focusEffectDisabled()
         .onKeyPress(.leftArrow) {
             previousTask()
             return .handled
@@ -97,7 +96,7 @@ struct OneModeView: View {
         .onChange(of: incompleteTodos) { _, _ in
             updateCurrentTodo()
         }
-        .focusedValue(\.selectedTask, $selectedTodo)
+        .focused($isOneModeViewFocused)
     }
     
     private func nextTask() {

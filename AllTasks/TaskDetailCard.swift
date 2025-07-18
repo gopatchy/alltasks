@@ -92,5 +92,16 @@ struct TaskDetailCard: View {
             editedDetails = todo.details
             isEditMode = false
         }
+        .onReceive(NotificationCenter.default.publisher(for: .editTask)) { _ in
+            if !isEditable {
+                isEditMode = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    titleFieldFocused = true
+                }
+            } else {
+                // If already editable, just focus the title
+                titleFieldFocused = true
+            }
+        }
     }
 }

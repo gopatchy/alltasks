@@ -6,6 +6,7 @@ struct TodoListView: View {
     @Binding var selectedMode: ViewMode
     @State private var selectedTodo: TodoItem?
     @FocusState private var isListFocused: Bool
+    @FocusState private var isTodoListViewFocused: Bool
     
     var body: some View {
         VStack(spacing: 0) {
@@ -34,16 +35,22 @@ struct TodoListView: View {
                     PrioritizeModeView()
                 }
             }
-            .focusedValue(\.selectedTask, $selectedTodo)
         }
+        .focusedValue(\.selectedTask, $selectedTodo)
         .focusedValue(\.focusListAction) {
             isListFocused = true
         }
+        .focused($isTodoListViewFocused)
         .onChange(of: selectedMode) { oldValue, newValue in
             if newValue == .list {
                 // Ensure list gets focus when switching to list mode
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     isListFocused = true
+                }
+            } else if newValue == .focus {
+                // Ensure TodoListView keeps focus in One mode
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    isTodoListViewFocused = true
                 }
             }
         }
