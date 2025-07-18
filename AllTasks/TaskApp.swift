@@ -51,7 +51,19 @@ struct TaskApp: App {
                 // Removes New Window menu item
             }
             CommandGroup(replacing: .saveItem) {
-                // Keeps other File menu items but removes Close
+                Button("Export Tasks...") {
+                    // Fetch all tasks from the model context
+                    let context = sharedModelContainer.mainContext
+                    let descriptor = FetchDescriptor<TaskItem>()
+                    
+                    do {
+                        let tasks = try context.fetch(descriptor)
+                        TaskExporter.exportTasks(tasks)
+                    } catch {
+                        print("Failed to fetch tasks: \(error)")
+                    }
+                }
+                .keyboardShortcut("e", modifiers: [.command, .shift])
             }
             CommandMenu("View") {
                 Button("New") {
