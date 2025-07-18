@@ -44,12 +44,12 @@ struct TaskListView: View {
         .onChange(of: selectedMode) { oldValue, newValue in
             if newValue == .list {
                 // Ensure list gets focus when switching to list mode
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                Task { @MainActor in
                     isListFocused = true
                 }
             } else if newValue == .focus {
                 // Ensure TaskListView keeps focus in One mode
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                Task { @MainActor in
                     isTaskListViewFocused = true
                 }
             }

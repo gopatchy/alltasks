@@ -85,7 +85,7 @@ struct TaskDetailCard: View {
             editedTitle = task.title
             editedDetails = task.details
             if focusTitleOnAppear && (isEditable || isEditMode) {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                Task { @MainActor in
                     titleFieldFocused = true
                 }
             }
