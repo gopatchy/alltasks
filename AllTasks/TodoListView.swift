@@ -39,5 +39,13 @@ struct TodoListView: View {
         .focusedValue(\.focusListAction) {
             isListFocused = true
         }
+        .onChange(of: selectedMode) { oldValue, newValue in
+            if newValue == .list {
+                // Ensure list gets focus when switching to list mode
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    isListFocused = true
+                }
+            }
+        }
     }
 }
