@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class TodoItem {
+final class TaskItem {
     var id = UUID()
     var title: String
     var details: String = ""

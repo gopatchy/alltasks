@@ -3,13 +3,13 @@ import SwiftData
 
 struct NewModeView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var currentTask: TodoItem = TodoItem(title: "")
+    @State private var currentTask: TaskItem = TaskItem(title: "")
     @State private var isTaskInserted: Bool = false
     @State private var taskId: UUID = UUID()
     
     var body: some View {
         VStack {
-            TaskDetailCard(todo: currentTask, isEditable: true, focusTitleOnAppear: true)
+            TaskDetailCard(task: currentTask, isEditable: true, focusTitleOnAppear: true)
                 .frame(maxWidth: 600)
                 .padding()
                 .id(taskId)
@@ -39,7 +39,7 @@ struct NewModeView: View {
     
     private func createNewTask() {
         // Create a new task and reset state
-        currentTask = TodoItem(title: "")
+        currentTask = TaskItem(title: "")
         isTaskInserted = false
         taskId = UUID() // Force TaskDetailCard to recreate and focus
     }

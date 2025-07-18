@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct TaskDetailCard: View {
-    let todo: TodoItem
+    let task: TaskItem
     var isEditable: Bool = true
     var focusTitleOnAppear: Bool = false
     @State private var editedTitle: String = ""
@@ -15,10 +15,10 @@ struct TaskDetailCard: View {
             HStack {
                 HStack {
                     Button(action: {
-                        todo.isCompleted.toggle()
+                        task.isCompleted.toggle()
                     }) {
-                        Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
-                            .foregroundColor(todo.isCompleted ? .purple : .gray)
+                        Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                            .foregroundColor(task.isCompleted ? .purple : .gray)
                             .font(.title2)
                     }
                     .buttonStyle(BorderlessButtonStyle())
@@ -29,12 +29,12 @@ struct TaskDetailCard: View {
                             .font(.body)
                             .focused($titleFieldFocused)
                             .onChange(of: editedTitle) { _, newValue in
-                                todo.title = newValue
+                                task.title = newValue
                             }
                     } else {
-                        Text(todo.title)
+                        Text(task.title)
                             .font(.body)
-                            .strikethrough(todo.isCompleted)
+                            .strikethrough(task.isCompleted)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
@@ -59,7 +59,7 @@ struct TaskDetailCard: View {
                 }
             }
             
-            TextEditor(text: isEditable || isEditMode ? $editedDetails : .constant(todo.details))
+            TextEditor(text: isEditable || isEditMode ? $editedDetails : .constant(task.details))
                 .font(.body)
                 .padding(8)
                 .frame(minHeight: 100)
@@ -71,7 +71,7 @@ struct TaskDetailCard: View {
                 .allowsHitTesting(isEditable || isEditMode)
                 .onChange(of: editedDetails) { _, newValue in
                     if isEditable || isEditMode {
-                        todo.details = newValue
+                        task.details = newValue
                     }
                 }
             
@@ -79,17 +79,17 @@ struct TaskDetailCard: View {
         }
         .padding()
         .onAppear {
-            editedTitle = todo.title
-            editedDetails = todo.details
+            editedTitle = task.title
+            editedDetails = task.details
             if focusTitleOnAppear && (isEditable || isEditMode) {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     titleFieldFocused = true
                 }
             }
         }
-        .onChange(of: todo) { _, _ in
-            editedTitle = todo.title
-            editedDetails = todo.details
+        .onChange(of: task) { _, _ in
+            editedTitle = task.title
+            editedDetails = task.details
             isEditMode = false
         }
         .onReceive(NotificationCenter.default.publisher(for: .editTask)) { _ in

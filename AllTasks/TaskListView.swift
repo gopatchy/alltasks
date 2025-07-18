@@ -1,12 +1,12 @@
 import SwiftUI
 import SwiftData
 
-struct TodoListView: View {
+struct TaskListView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var selectedMode: ViewMode
-    @State private var selectedTodo: TodoItem?
+    @State private var selectedTask: TaskItem?
     @FocusState private var isListFocused: Bool
-    @FocusState private var isTodoListViewFocused: Bool
+    @FocusState private var isTaskListViewFocused: Bool
     
     var body: some View {
         VStack(spacing: 0) {
@@ -24,23 +24,23 @@ struct TodoListView: View {
                 switch selectedMode {
                 case .list:
                     ListModeView(
-                        selectedTodo: $selectedTodo,
+                        selectedTask: $selectedTask,
                         isFocused: _isListFocused
                     )
                 case .addTask:
                     NewModeView()
                 case .focus:
-                    OneModeView(selectedTodo: $selectedTodo)
+                    OneModeView(selectedTask: $selectedTask)
                 case .prioritize:
                     PrioritizeModeView()
                 }
             }
         }
-        .focusedValue(\.selectedTask, $selectedTodo)
+        .focusedValue(\.selectedTask, $selectedTask)
         .focusedValue(\.focusListAction) {
             isListFocused = true
         }
-        .focused($isTodoListViewFocused)
+        .focused($isTaskListViewFocused)
         .onChange(of: selectedMode) { oldValue, newValue in
             if newValue == .list {
                 // Ensure list gets focus when switching to list mode
@@ -48,9 +48,9 @@ struct TodoListView: View {
                     isListFocused = true
                 }
             } else if newValue == .focus {
-                // Ensure TodoListView keeps focus in One mode
+                // Ensure TaskListView keeps focus in One mode
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    isTodoListViewFocused = true
+                    isTaskListViewFocused = true
                 }
             }
         }

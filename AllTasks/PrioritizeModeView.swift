@@ -3,23 +3,23 @@ import SwiftData
 
 struct PrioritizeModeView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var todos: [TodoItem]
+    @Query private var tasks: [TaskItem]
     @State private var currentPairIndex = 0
-    @State private var comparisons: [(TodoItem, TodoItem)] = []
+    @State private var comparisons: [(TaskItem, TaskItem)] = []
     @FocusState private var isFocused: Bool
     
-    var incompleteTodos: [TodoItem] {
-        todos.filter { !$0.isCompleted }
+    var incompleteTasks: [TaskItem] {
+        tasks.filter { !$0.isCompleted }
     }
     
-    var currentPair: (TodoItem, TodoItem)? {
+    var currentPair: (TaskItem, TaskItem)? {
         guard currentPairIndex < comparisons.count else { return nil }
         return comparisons[currentPairIndex]
     }
     
     var body: some View {
         VStack {
-            if incompleteTodos.count < 2 {
+            if incompleteTasks.count < 2 {
                 Text("Add at least 2 tasks to use prioritize mode")
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -27,14 +27,14 @@ struct PrioritizeModeView: View {
                 VStack {
                     HStack(spacing: 0) {
                         TaskComparisonView(
-                            todo: pair.0,
+                            task: pair.0,
                             action: { selectTask(pair.0, over: pair.1) },
                             color: .purple,
                             alignment: .leading
                         )
                         
                         TaskComparisonView(
-                            todo: pair.1,
+                            task: pair.1,
                             action: { selectTask(pair.1, over: pair.0) },
                             color: .purple,
                             alignment: .trailing
@@ -89,7 +89,7 @@ struct PrioritizeModeView: View {
     
     private func setupComparisons() {
         comparisons = []
-        let tasks = incompleteTodos
+        let tasks = incompleteTasks
         
         for i in 0..<tasks.count {
             for j in (i+1)..<tasks.count {
@@ -101,7 +101,7 @@ struct PrioritizeModeView: View {
         currentPairIndex = 0
     }
     
-    private func selectTask(_ winner: TodoItem, over loser: TodoItem) {
+    private func selectTask(_ winner: TaskItem, over loser: TaskItem) {
         // In a real app, you might want to track priority scores
         nextComparison()
     }
@@ -112,14 +112,14 @@ struct PrioritizeModeView: View {
 }
 
 struct TaskComparisonView: View {
-    let todo: TodoItem
+    let task: TaskItem
     let action: () -> Void
     let color: Color
     let alignment: Alignment
     
     var body: some View {
         VStack(spacing: 16) {
-            TaskDetailCard(todo: todo, isEditable: false)
+            TaskDetailCard(task: task, isEditable: false)
                 .glassEffect(in: RoundedRectangle(cornerRadius: 8))
             
             HStack {

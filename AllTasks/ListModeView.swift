@@ -3,8 +3,8 @@ import SwiftData
 
 struct ListModeView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var todos: [TodoItem]
-    @Binding var selectedTodo: TodoItem?
+    @Query private var tasks: [TaskItem]
+    @Binding var selectedTask: TaskItem?
     @FocusState var isFocused: Bool
     
     var body: some View {
@@ -12,20 +12,20 @@ struct ListModeView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: 8) {
-                        ForEach(todos) { todo in
+                        ForEach(tasks) { task in
                             HStack {
                                 Button(action: {
-                                    todo.isCompleted.toggle()
+                                    task.isCompleted.toggle()
                                 }) {
-                                    Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
-                                        .foregroundColor(todo.isCompleted ? .purple : .gray)
+                                    Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                                        .foregroundColor(task.isCompleted ? .purple : .gray)
                                         .font(.title3)
                                 }
                                 .buttonStyle(BorderlessButtonStyle())
                                 
-                                Text(todo.title)
-                                    .strikethrough(todo.isCompleted)
-                                    .foregroundColor(todo.isCompleted ? .gray : .primary)
+                                Text(task.title)
+                                    .strikethrough(task.isCompleted)
+                                    .foregroundColor(task.isCompleted ? .gray : .primary)
                                 
                                 Spacer()
                             }
@@ -35,10 +35,10 @@ struct ListModeView: View {
                             .glassEffect(in: RoundedRectangle(cornerRadius: 8))
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(selectedTodo?.id == todo.id ? Color.accentColor.opacity(0.1) : Color.clear)
+                                    .fill(selectedTask?.id == task.id ? Color.accentColor.opacity(0.1) : Color.clear)
                             )
                             .onTapGesture {
-                                selectedTodo = todo
+                                selectedTask = task
                             }
                         }
                     }
@@ -49,19 +49,19 @@ struct ListModeView: View {
                 .focused($isFocused)
                 .focusEffectDisabled()
                 .onKeyPress(.downArrow) {
-                    selectNextTodo()
+                    selectNextTask()
                     return .handled
                 }
                 .onKeyPress(.upArrow) {
-                    selectPreviousTodo()
+                    selectPreviousTask()
                     return .handled
                 }
             }
             .frame(minWidth: 250)
             
             VStack {
-                if let todo = selectedTodo {
-                    TaskDetailCard(todo: todo, isEditable: false)
+                if let task = selectedTask {
+                    TaskDetailCard(task: task, isEditable: false)
                         .padding()
                         .glassEffect(in: RoundedRectangle(cornerRadius: 12))
                         .padding()
@@ -76,25 +76,25 @@ struct ListModeView: View {
         .onAppear {
             isFocused = true
             // Select first task if none selected
-            if selectedTodo == nil && !todos.isEmpty {
-                selectedTodo = todos.first
+            if selectedTask == nil && !tasks.isEmpty {
+                selectedTask = tasks.first
             }
         }
     }
     
-    private func selectNextTodo() {
-        guard let currentTodo = selectedTodo,
-              let currentIndex = todos.firstIndex(where: { $0.id == currentTodo.id }),
-              currentIndex < todos.count - 1 else { return }
+    private func selectNextTask() {
+        guard let currentTask = selectedTask,
+              let currentIndex = tasks.firstIndex(where: { $0.id == currentTask.id }),
+              currentIndex < tasks.count - 1 else { return }
         
-        selectedTodo = todos[currentIndex + 1]
+        selectedTask = tasks[currentIndex + 1]
     }
     
-    private func selectPreviousTodo() {
-        guard let currentTodo = selectedTodo,
-              let currentIndex = todos.firstIndex(where: { $0.id == currentTodo.id }),
+    private func selectPreviousTask() {
+        guard let currentTask = selectedTask,
+              let currentIndex = tasks.firstIndex(where: { $0.id == currentTask.id }),
               currentIndex > 0 else { return }
         
-        selectedTodo = todos[currentIndex - 1]
+        selectedTask = tasks[currentIndex - 1]
     }
 }

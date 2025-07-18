@@ -4,7 +4,7 @@ struct ContentView: View {
     @Binding var selectedMode: ViewMode
     
     var body: some View {
-        TodoListView(selectedMode: $selectedMode)
+        TaskListView(selectedMode: $selectedMode)
     }
 }
 

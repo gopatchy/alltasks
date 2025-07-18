@@ -3,18 +3,18 @@ import SwiftData
 
 struct OneModeView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var todos: [TodoItem]
-    @State private var currentTodoIndex = 0
+    @Query private var tasks: [TaskItem]
+    @State private var currentTaskIndex = 0
     @FocusState private var isOneModeViewFocused: Bool
-    @Binding var selectedTodo: TodoItem?
+    @Binding var selectedTask: TaskItem?
     
-    var incompleteTodos: [TodoItem] {
-        todos.filter { !$0.isCompleted }
+    var incompleteTasks: [TaskItem] {
+        tasks.filter { !$0.isCompleted }
     }
     
     var body: some View {
         VStack {
-            if let todo = selectedTodo {
+            if let task = selectedTask {
                 VStack(spacing: 30) {
                     HStack(alignment: .center, spacing: 20) {
                         VStack {
@@ -25,16 +25,16 @@ struct OneModeView: View {
                             .keyboardShortcut(.leftArrow, modifiers: [])
                             
                             Button(action: {
-                                currentTodoIndex = 0
+                                currentTaskIndex = 0
                             }) {
                                 Image(systemName: "chevron.left.2")
                                     .font(.title2)
                             }
-                            .disabled(currentTodoIndex == 0)
+                            .disabled(currentTaskIndex == 0)
                             .keyboardShortcut("1", modifiers: [])
                         }
                         
-                        TaskDetailCard(todo: todo, isEditable: false)
+                        TaskDetailCard(task: task, isEditable: false)
                         .frame(maxWidth: 600)
                         .padding()
                         .glassEffect(in: RoundedRectangle(cornerRadius: 12))
@@ -47,12 +47,12 @@ struct OneModeView: View {
                             .keyboardShortcut(.rightArrow, modifiers: [])
                             
                             Button(action: {
-                                currentTodoIndex = incompleteTodos.count - 1
+                                currentTaskIndex = incompleteTasks.count - 1
                             }) {
                                 Image(systemName: "chevron.right.2")
                                     .font(.title2)
                             }
-                            .disabled(currentTodoIndex == incompleteTodos.count - 1)
+                            .disabled(currentTaskIndex == incompleteTasks.count - 1)
                             .keyboardShortcut("2", modifiers: [])
                         }
                     }
@@ -86,45 +86,45 @@ struct OneModeView: View {
             return .handled
         }
         .onAppear {
-            // If we have a selected todo, find its index
-            if let todo = selectedTodo,
-               let index = incompleteTodos.firstIndex(where: { $0.id == todo.id }) {
-                currentTodoIndex = index
+            // If we have a selected task, find its index
+            if let task = selectedTask,
+               let index = incompleteTasks.firstIndex(where: { $0.id == task.id }) {
+                currentTaskIndex = index
             }
-            updateCurrentTodo()
+            updateCurrentTask()
         }
-        .onChange(of: incompleteTodos) { _, _ in
-            updateCurrentTodo()
+        .onChange(of: incompleteTasks) { _, _ in
+            updateCurrentTask()
         }
         .focused($isOneModeViewFocused)
     }
     
     private func nextTask() {
-        if currentTodoIndex < incompleteTodos.count - 1 {
-            currentTodoIndex += 1
+        if currentTaskIndex < incompleteTasks.count - 1 {
+            currentTaskIndex += 1
         } else {
-            currentTodoIndex = 0
+            currentTaskIndex = 0
         }
-        updateCurrentTodo()
+        updateCurrentTask()
     }
     
     private func previousTask() {
-        if currentTodoIndex > 0 {
-            currentTodoIndex -= 1
+        if currentTaskIndex > 0 {
+            currentTaskIndex -= 1
         } else {
-            currentTodoIndex = incompleteTodos.count - 1
+            currentTaskIndex = incompleteTasks.count - 1
         }
-        updateCurrentTodo()
+        updateCurrentTask()
     }
     
-    private func updateCurrentTodo() {
-        guard !incompleteTodos.isEmpty else {
-            selectedTodo = nil
+    private func updateCurrentTask() {
+        guard !incompleteTasks.isEmpty else {
+            selectedTask = nil
             return
         }
         
         // Ensure index is valid
-        currentTodoIndex = currentTodoIndex % incompleteTodos.count
-        selectedTodo = incompleteTodos[currentTodoIndex]
+        currentTaskIndex = currentTaskIndex % incompleteTasks.count
+        selectedTask = incompleteTasks[currentTaskIndex]
     }
 }

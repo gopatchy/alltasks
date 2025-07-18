@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct SelectedTaskKey: FocusedValueKey {
-    typealias Value = Binding<TodoItem?>
+    typealias Value = Binding<TaskItem?>
 }
 
 extension FocusedValues {
-    var selectedTask: Binding<TodoItem?>? {
+    var selectedTask: Binding<TaskItem?>? {
         get { self[SelectedTaskKey.self] }
         set { self[SelectedTaskKey.self] = newValue }
     }

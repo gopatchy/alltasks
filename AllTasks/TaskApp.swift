@@ -14,15 +14,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 @main
-struct TodoApp: App {
+struct TaskApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @FocusedValue(\.selectedTask) var selectedTask: Binding<TodoItem?>?
+    @FocusedValue(\.selectedTask) var selectedTask: Binding<TaskItem?>?
     @FocusedValue(\.focusListAction) var focusListAction: (() -> Void)?
     @State private var selectedMode: ViewMode = .addTask
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            TodoItem.self,
+            TaskItem.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
