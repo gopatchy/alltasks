@@ -75,6 +75,10 @@ struct ListModeView: View {
         }
         .onAppear {
             isFocused = true
+            // Select first task if none selected
+            if selectedTodo == nil && !todos.isEmpty {
+                selectedTodo = todos.first
+            }
         }
     }
     

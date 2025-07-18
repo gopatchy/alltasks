@@ -16,7 +16,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 struct TodoApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @FocusedValue(\.selectedTask) var selectedTask: Binding<TodoItem?>?
-    @FocusedValue(\.addTaskAction) var addTaskAction: (() -> Void)?
     @FocusedValue(\.focusListAction) var focusListAction: (() -> Void)?
     @State private var selectedMode: ViewMode = .addTask
     
