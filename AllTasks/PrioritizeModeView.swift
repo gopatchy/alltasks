@@ -4,17 +4,21 @@ import SwiftData
 struct PrioritizeModeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var tasks: [TaskItem]
-    @State private var currentPairIndex = 0
-    @State private var comparisons: [(TaskItem, TaskItem)] = []
+    @Query private var comparisons: [Comparison]
+    @State private var sortingState: SortingState = SortingState()
+    @State private var currentComparison: (TaskItem, TaskItem)?
+    @State private var sortedTasks: [TaskItem] = []
+    @State private var currentSessionId = UUID()
     @FocusState private var isFocused: Bool
     
     var incompleteTasks: [TaskItem] {
         tasks.filter { !$0.isCompleted }
     }
     
-    var currentPair: (TaskItem, TaskItem)? {
-        guard currentPairIndex < comparisons.count else { return nil }
-        return comparisons[currentPairIndex]
+    struct SortingState {
+        var mergeStack: [(start: Int, mid: Int, end: Int)] = []
+        var currentMerge: (left: [TaskItem], right: [TaskItem], result: [TaskItem])?
+        var comparisonsCount = 0
     }
     
     var body: some View {
@@ -23,43 +27,36 @@ struct PrioritizeModeView: View {
                 Text("Add at least 2 tasks to use prioritize mode")
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let pair = currentPair {
+            } else if let comparison = currentComparison {
                 VStack {
                     HStack(spacing: 0) {
                         TaskComparisonView(
-                            task: pair.0,
-                            action: { selectTask(pair.0, over: pair.1) },
+                            task: comparison.0,
+                            action: { selectTask(comparison.0) },
                             color: .purple,
                             alignment: .leading
                         )
                         
                         TaskComparisonView(
-                            task: pair.1,
-                            action: { selectTask(pair.1, over: pair.0) },
+                            task: comparison.1,
+                            action: { selectTask(comparison.1) },
                             color: .purple,
                             alignment: .trailing
                         )
                     }
                     
-                    ProgressView(value: Double(currentPairIndex), total: Double(comparisons.count))
-                        .progressViewStyle(.linear)
-                        .tint(.purple)
-                        .padding(.horizontal, 40)
-                        .padding(.top, 8)
-                        .padding(.bottom, 16)
                 }
             } else {
                 VStack(spacing: 20) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 60))
-                        .foregroundColor(.gray)
+                        .foregroundColor(.green)
                     
-                    Text("Prioritization Complete!")
+                    Text("Prioritization Complete")
                         .font(.title)
                     
-                    Button("Start Over") {
-                        setupComparisons()
-                    }
+                    Text("Your tasks have been prioritized")
+                        .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
@@ -68,46 +65,142 @@ struct PrioritizeModeView: View {
         .focused($isFocused)
         .focusEffectDisabled()
         .onKeyPress(.leftArrow) {
-            if let pair = currentPair {
-                selectTask(pair.0, over: pair.1)
+            if let comparison = currentComparison {
+                selectTask(comparison.0)
                 return .handled
             }
             return .ignored
         }
         .onKeyPress(.rightArrow) {
-            if let pair = currentPair {
-                selectTask(pair.1, over: pair.0)
+            if let comparison = currentComparison {
+                selectTask(comparison.1)
                 return .handled
             }
             return .ignored
         }
         .onAppear {
-            setupComparisons()
+            startSorting()
             isFocused = true
         }
+        .onReceive(NotificationCenter.default.publisher(for: .restartPrioritization)) { _ in
+            startSorting()
+        }
     }
     
-    private func setupComparisons() {
-        comparisons = []
-        let tasks = incompleteTasks
+    private func startSorting() {
+        sortedTasks = incompleteTasks
+        sortingState = SortingState()
+        currentComparison = nil
+        currentSessionId = UUID() // New session for each sort
         
-        for i in 0..<tasks.count {
-            for j in (i+1)..<tasks.count {
-                comparisons.append((tasks[i], tasks[j]))
+        if sortedTasks.count > 1 {
+            // Initialize merge sort
+            initializeMergeSort(0, sortedTasks.count - 1)
+            processNextComparison()
+        }
+        // If <= 1 task, currentComparison stays nil, showing completion
+    }
+    
+    private func initializeMergeSort(_ start: Int, _ end: Int) {
+        if start < end {
+            let mid = (start + end) / 2
+            initializeMergeSort(start, mid)
+            initializeMergeSort(mid + 1, end)
+            sortingState.mergeStack.append((start, mid, end))
+        }
+    }
+    
+    private func processNextComparison() {
+        // Continue current merge if in progress
+        if var merge = sortingState.currentMerge {
+            if !merge.left.isEmpty && !merge.right.isEmpty {
+                let left = merge.left[0]
+                let right = merge.right[0]
+                
+                // Check if we have a recent comparison for this pair
+                if let existingWinner = checkExistingComparison(left, right) {
+                    // Use existing comparison result
+                    if existingWinner.id == left.id {
+                        merge.result.append(merge.left.removeFirst())
+                    } else {
+                        merge.result.append(merge.right.removeFirst())
+                    }
+                    sortingState.currentMerge = merge
+                    processNextComparison()
+                } else {
+                    // Need user input
+                    currentComparison = (left, right)
+                }
+                return
             }
+            
+            // Finish current merge
+            while !merge.left.isEmpty {
+                merge.result.append(merge.left.removeFirst())
+            }
+            while !merge.right.isEmpty {
+                merge.result.append(merge.right.removeFirst())
+            }
+            
+            // Apply merge result
+            if let mergeInfo = sortingState.mergeStack.first {
+                for (i, task) in merge.result.enumerated() {
+                    sortedTasks[mergeInfo.start + i] = task
+                }
+                sortingState.mergeStack.removeFirst()
+            }
+            sortingState.currentMerge = nil
         }
         
-        comparisons.shuffle()
-        currentPairIndex = 0
+        // Start next merge
+        if let mergeInfo = sortingState.mergeStack.first {
+            let leftArray = Array(sortedTasks[mergeInfo.start...mergeInfo.mid])
+            let rightArray = Array(sortedTasks[(mergeInfo.mid + 1)...mergeInfo.end])
+            
+            sortingState.currentMerge = (left: leftArray, right: rightArray, result: [])
+            processNextComparison()
+        } else {
+            // Sorting complete
+            currentComparison = nil
+        }
     }
     
-    private func selectTask(_ winner: TaskItem, over loser: TaskItem) {
-        // In a real app, you might want to track priority scores
-        nextComparison()
+    private func selectTask(_ selected: TaskItem) {
+        guard var merge = sortingState.currentMerge,
+              let comparison = currentComparison else { return }
+        
+        sortingState.comparisonsCount += 1
+        
+        // Save the comparison for this session
+        let newComparison = Comparison(sessionId: currentSessionId, taskA: comparison.0, taskB: comparison.1, winner: selected)
+        modelContext.insert(newComparison)
+        
+        // Remove old comparisons for this pair (from any session)
+        let oldComparisons = comparisons.filter { comp in
+            comp.involves(comparison.0, comparison.1) && comp.id != newComparison.id
+        }
+        for old in oldComparisons {
+            modelContext.delete(old)
+        }
+        
+        if selected.id == comparison.0.id {
+            merge.result.append(merge.left.removeFirst())
+        } else {
+            merge.result.append(merge.right.removeFirst())
+        }
+        
+        sortingState.currentMerge = merge
+        processNextComparison()
     }
     
-    private func nextComparison() {
-        currentPairIndex += 1
+    private func checkExistingComparison(_ taskA: TaskItem, _ taskB: TaskItem) -> TaskItem? {
+        // Find comparisons from the current session only
+        let relevantComparison = comparisons
+            .filter { $0.sessionId == currentSessionId && $0.involves(taskA, taskB) }
+            .sorted { $0.timestamp > $1.timestamp }
+            .first
+        
+        return relevantComparison?.winner
     }
 }
 

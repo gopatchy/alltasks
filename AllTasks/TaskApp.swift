@@ -7,6 +7,7 @@ extension Notification.Name {
     static let editTask = Notification.Name("editTask")
     static let refocusParentView = Notification.Name("refocusParentView")
     static let clearAndFocusSearch = Notification.Name("clearAndFocusSearch")
+    static let restartPrioritization = Notification.Name("restartPrioritization")
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -25,6 +26,7 @@ struct TaskApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             TaskItem.self,
+            Comparison.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -83,7 +85,11 @@ struct TaskApp: App {
                 .keyboardShortcut("o", modifiers: .command)
                 
                 Button("Prioritize") {
-                    selectedMode = .prioritize
+                    if selectedMode == .prioritize {
+                        NotificationCenter.default.post(name: .restartPrioritization, object: nil)
+                    } else {
+                        selectedMode = .prioritize
+                    }
                 }
                 .keyboardShortcut("p", modifiers: .command)
             }
