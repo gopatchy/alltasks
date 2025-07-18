@@ -69,6 +69,7 @@ struct TaskDetailCard: View {
                         .stroke(Color.accentColor.opacity(0.3), lineWidth: (isEditable || isEditMode) ? 1 : 0)
                 )
                 .allowsHitTesting(isEditable || isEditMode)
+                .tint((isEditable || isEditMode) ? .primary : .clear)
                 .onChange(of: editedDetails) { _, newValue in
                     if isEditable || isEditMode {
                         task.details = newValue
