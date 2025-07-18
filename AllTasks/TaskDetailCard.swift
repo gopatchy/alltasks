@@ -9,6 +9,7 @@ struct TaskDetailCard: View {
     @State private var editedDetails: String = ""
     @State private var isEditMode: Bool = false
     @FocusState private var titleFieldFocused: Bool
+    @FocusState private var detailsFieldFocused: Bool
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -50,6 +51,12 @@ struct TaskDetailCard: View {
                 if !isEditable {
                     Button(action: {
                         isEditMode.toggle()
+                        if isEditMode {
+                            detailsFieldFocused = false
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                titleFieldFocused = true
+                            }
+                        }
                     }) {
                         Image(systemName: "square.and.pencil")
                             .font(.title)
@@ -70,6 +77,7 @@ struct TaskDetailCard: View {
                 )
                 .allowsHitTesting(isEditable || isEditMode)
                 .tint((isEditable || isEditMode) ? .primary : .clear)
+                .focused($detailsFieldFocused)
                 .onChange(of: editedDetails) { _, newValue in
                     if isEditable || isEditMode {
                         task.details = newValue
@@ -98,6 +106,7 @@ struct TaskDetailCard: View {
                 // Toggle edit mode for read-only cards
                 isEditMode.toggle()
                 if isEditMode {
+                    detailsFieldFocused = false
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         titleFieldFocused = true
                     }
