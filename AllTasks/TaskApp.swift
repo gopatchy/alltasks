@@ -6,6 +6,7 @@ extension Notification.Name {
     static let createNewTask = Notification.Name("createNewTask")
     static let editTask = Notification.Name("editTask")
     static let refocusParentView = Notification.Name("refocusParentView")
+    static let clearAndFocusSearch = Notification.Name("clearAndFocusSearch")
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -66,6 +67,15 @@ struct TaskApp: App {
                     focusListAction?()
                 }
                 .keyboardShortcut("l", modifiers: .command)
+                
+                Button("Find") {
+                    if selectedMode == .find {
+                        NotificationCenter.default.post(name: .clearAndFocusSearch, object: nil)
+                    } else {
+                        selectedMode = .find
+                    }
+                }
+                .keyboardShortcut("f", modifiers: .command)
                 
                 Button("One") {
                     selectedMode = .focus

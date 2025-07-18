@@ -6,6 +6,7 @@ struct TaskListView: View {
     @Binding var selectedMode: ViewMode
     @State private var selectedTask: TaskItem?
     @FocusState private var isListFocused: Bool
+    @FocusState private var isFindFocused: Bool
     @FocusState private var isTaskListViewFocused: Bool
     
     var body: some View {
@@ -27,6 +28,11 @@ struct TaskListView: View {
                         selectedTask: $selectedTask,
                         isFocused: _isListFocused
                     )
+                case .find:
+                    FindModeView(
+                        selectedTask: $selectedTask,
+                        isFocused: _isFindFocused
+                    )
                 case .addTask:
                     NewModeView()
                 case .focus:
@@ -47,6 +53,11 @@ struct TaskListView: View {
                 Task { @MainActor in
                     isListFocused = true
                 }
+            } else if newValue == .find {
+                // Ensure find gets focus when switching to find mode
+                Task { @MainActor in
+                    isFindFocused = true
+                }
             } else if newValue == .focus || newValue == .prioritize {
                 // Ensure TaskListView keeps focus in One mode and Prioritize mode
                 Task { @MainActor in
@@ -58,6 +69,8 @@ struct TaskListView: View {
             // Refocus TaskListView when edit mode is disabled
             if selectedMode == .list {
                 isListFocused = true
+            } else if selectedMode == .find {
+                isFindFocused = true
             } else if selectedMode == .focus || selectedMode == .prioritize {
                 isTaskListViewFocused = true
             }
