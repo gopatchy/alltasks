@@ -12,25 +12,6 @@ struct TodoListView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                HStack {
-                    TextField("", text: $newTodoText)
-                        .textFieldStyle(.plain)
-                        .focused($isAddFieldFocused)
-                        .onSubmit {
-                            addTodo()
-                        }
-                    
-                    Button(action: addTodo) {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundColor(.purple)
-                            .font(.title3)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .disabled(newTodoText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                }
-                .padding(8)
-                .glassEffect(in: RoundedRectangle(cornerRadius: 8))
-                
                 Spacer()
                 
                 ModeSwitcher(selectedMode: $selectedMode)
@@ -47,6 +28,8 @@ struct TodoListView: View {
                         selectedTodo: $selectedTodo,
                         isFocused: _isListFocused
                     )
+                case .addTask:
+                    AddTaskView()
                 case .focus:
                     FocusModeView(selectedTodo: $selectedTodo)
                 case .prioritize:

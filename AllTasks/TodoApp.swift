@@ -2,6 +2,10 @@ import SwiftUI
 import SwiftData
 import AppKit
 
+extension Notification.Name {
+    static let createNewTask = Notification.Name("createNewTask")
+}
+
 class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return true
@@ -14,7 +18,7 @@ struct TodoApp: App {
     @FocusedValue(\.selectedTask) var selectedTask: Binding<TodoItem?>?
     @FocusedValue(\.addTaskAction) var addTaskAction: (() -> Void)?
     @FocusedValue(\.focusListAction) var focusListAction: (() -> Void)?
-    @State private var selectedMode: ViewMode = .list
+    @State private var selectedMode: ViewMode = .addTask
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -52,10 +56,20 @@ struct TodoApp: App {
                 }
                 .keyboardShortcut("l", modifiers: .command)
                 
+                Button("Add Task") {
+                    // If already in add task mode, create a new task
+                    if selectedMode == .addTask {
+                        NotificationCenter.default.post(name: .createNewTask, object: nil)
+                    } else {
+                        selectedMode = .addTask
+                    }
+                }
+                .keyboardShortcut("n", modifiers: .command)
+                
                 Button("Focus") {
                     selectedMode = .focus
                 }
-                .keyboardShortcut("f", modifiers: .command)
+                .keyboardShortcut("o", modifiers: .command)
                 
                 Button("Prioritize") {
                     selectedMode = .prioritize
@@ -63,13 +77,6 @@ struct TodoApp: App {
                 .keyboardShortcut("p", modifiers: .command)
             }
             CommandMenu("Task") {
-                Button("Add") {
-                    addTaskAction?()
-                }
-                .keyboardShortcut("a", modifiers: .command)
-                
-                Divider()
-                
                 Button("Delete") {
                     if let taskBinding = selectedTask,
                        let task = taskBinding.wrappedValue {
@@ -79,7 +86,6 @@ struct TodoApp: App {
                         }
                     }
                 }
-                .keyboardShortcut(.delete, modifiers: [])
                 .disabled(selectedTask?.wrappedValue == nil)
             }
         }

@@ -4,9 +4,11 @@ import SwiftData
 struct TaskDetailCard: View {
     let todo: TodoItem
     var isEditable: Bool = true
+    var focusTitleOnAppear: Bool = false
     @State private var editedTitle: String = ""
     @State private var editedDetails: String = ""
     @State private var isEditMode: Bool = false
+    @FocusState private var titleFieldFocused: Bool
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -25,6 +27,7 @@ struct TaskDetailCard: View {
                         TextField("Task title", text: $editedTitle)
                             .textFieldStyle(.plain)
                             .font(.body)
+                            .focused($titleFieldFocused)
                             .onChange(of: editedTitle) { _, newValue in
                                 todo.title = newValue
                             }
@@ -78,6 +81,11 @@ struct TaskDetailCard: View {
         .onAppear {
             editedTitle = todo.title
             editedDetails = todo.details
+            if focusTitleOnAppear && (isEditable || isEditMode) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    titleFieldFocused = true
+                }
+            }
         }
         .onChange(of: todo) { _, _ in
             editedTitle = todo.title
