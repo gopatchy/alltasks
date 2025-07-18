@@ -39,8 +39,11 @@ struct TodoApp: App {
         .windowStyle(.automatic)
         .windowResizability(.contentSize)
         .commands {
-            CommandGroup(after: .newItem) {
-                Divider()
+            CommandGroup(replacing: .newItem) {
+                // Removes New Window menu item
+            }
+            CommandGroup(replacing: .saveItem) {
+                // Keeps other File menu items but removes Close
             }
             CommandMenu("View") {
                 Button("List") {
