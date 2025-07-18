@@ -47,8 +47,8 @@ struct TaskListView: View {
                 Task { @MainActor in
                     isListFocused = true
                 }
-            } else if newValue == .focus {
-                // Ensure TaskListView keeps focus in One mode
+            } else if newValue == .focus || newValue == .prioritize {
+                // Ensure TaskListView keeps focus in One mode and Prioritize mode
                 Task { @MainActor in
                     isTaskListViewFocused = true
                 }
@@ -58,7 +58,7 @@ struct TaskListView: View {
             // Refocus TaskListView when edit mode is disabled
             if selectedMode == .list {
                 isListFocused = true
-            } else if selectedMode == .focus {
+            } else if selectedMode == .focus || selectedMode == .prioritize {
                 isTaskListViewFocused = true
             }
         }
