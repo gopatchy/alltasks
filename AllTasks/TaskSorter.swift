@@ -4,7 +4,7 @@ import SwiftData
 class TaskSorter {
     static func sortTasks(_ tasks: [TaskItem], using comparisons: [Comparison]) -> [TaskItem] {
         // Separate completed and incomplete tasks
-        var incompleteTasks = tasks.filter { !$0.isCompleted }
+        let incompleteTasks = tasks.filter { !$0.isCompleted }
         let completedTasks = tasks.filter { $0.isCompleted }
         
         // Start with the current order
@@ -14,9 +14,7 @@ class TaskSorter {
         for comparison in comparisons.sorted(by: { $0.timestamp < $1.timestamp }) {
             // Find the indices of both tasks
             guard let winnerIndex = sorted.firstIndex(where: { $0.id == comparison.winner.id }),
-                  let loserIndex = sorted.firstIndex(where: { 
-                      $0.id == (comparison.winner.id == comparison.taskA.id ? comparison.taskB.id : comparison.taskA.id) 
-                  }) else {
+                  let loserIndex = sorted.firstIndex(where: { $0.id == comparison.loser.id }) else {
                 continue
             }
             

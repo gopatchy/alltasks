@@ -171,8 +171,11 @@ struct PrioritizeModeView: View {
         
         sortingState.comparisonsCount += 1
         
+        // Determine winner and loser
+        let loser = selected.id == comparison.0.id ? comparison.1 : comparison.0
+        
         // Save the comparison for this session
-        let newComparison = Comparison(sessionId: currentSessionId, taskA: comparison.0, taskB: comparison.1, winner: selected)
+        let newComparison = Comparison(sessionId: currentSessionId, winner: selected, loser: loser)
         modelContext.insert(newComparison)
         
         // Remove old comparisons for this pair (from any session)
