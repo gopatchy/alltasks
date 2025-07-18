@@ -51,12 +51,6 @@ struct TaskDetailCard: View {
                 if !isEditable {
                     Button(action: {
                         isEditMode.toggle()
-                        if isEditMode {
-                            detailsFieldFocused = false
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                titleFieldFocused = true
-                            }
-                        }
                     }) {
                         Image(systemName: "square.and.pencil")
                             .font(.title)
@@ -91,7 +85,7 @@ struct TaskDetailCard: View {
             editedTitle = task.title
             editedDetails = task.details
             if focusTitleOnAppear && (isEditable || isEditMode) {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
                     titleFieldFocused = true
                 }
             }
@@ -101,20 +95,27 @@ struct TaskDetailCard: View {
             editedDetails = task.details
             isEditMode = false
         }
+        .onChange(of: isEditMode) { _, newValue in
+            if newValue {
+                // Entering edit mode: ensure details field doesn't steal focus
+                detailsFieldFocused = false
+                // Use Task with @MainActor for better integration
+                Task { @MainActor in
+                    titleFieldFocused = true
+                }
+            } else {
+                // Exiting edit mode: clear all focus
+                titleFieldFocused = false
+                detailsFieldFocused = false
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .editTask)) { _ in
             if !isEditable {
                 // Toggle edit mode for read-only cards
                 isEditMode.toggle()
-                if isEditMode {
-                    detailsFieldFocused = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        titleFieldFocused = true
-                    }
-                } else {
-                    // When disabling edit mode, ensure focus stays on the card
-                    titleFieldFocused = false
-                    // Post a notification to refocus the parent view
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if !isEditMode {
+                    // Post a notification to refocus the parent view when exiting edit mode
+                    Task { @MainActor in
                         NotificationCenter.default.post(name: .refocusParentView, object: nil)
                     }
                 }
