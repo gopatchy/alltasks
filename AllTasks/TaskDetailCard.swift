@@ -94,13 +94,23 @@ struct TaskDetailCard: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .editTask)) { _ in
             if !isEditable {
-                isEditMode = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    titleFieldFocused = true
+                // Toggle edit mode for read-only cards
+                isEditMode.toggle()
+                if isEditMode {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        titleFieldFocused = true
+                    }
+                } else {
+                    // When disabling edit mode, ensure focus stays on the card
+                    titleFieldFocused = false
+                    // Post a notification to refocus the parent view
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        NotificationCenter.default.post(name: .refocusParentView, object: nil)
+                    }
                 }
             } else {
-                // If already editable, just focus the title
-                titleFieldFocused = true
+                // For always-editable cards, just focus/unfocus the title
+                titleFieldFocused.toggle()
             }
         }
     }

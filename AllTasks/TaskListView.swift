@@ -54,5 +54,13 @@ struct TaskListView: View {
                 }
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .refocusParentView)) { _ in
+            // Refocus TaskListView when edit mode is disabled
+            if selectedMode == .list {
+                isListFocused = true
+            } else if selectedMode == .focus {
+                isTaskListViewFocused = true
+            }
+        }
     }
 }

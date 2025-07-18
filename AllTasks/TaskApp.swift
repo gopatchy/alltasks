@@ -5,6 +5,7 @@ import AppKit
 extension Notification.Name {
     static let createNewTask = Notification.Name("createNewTask")
     static let editTask = Notification.Name("editTask")
+    static let refocusParentView = Notification.Name("refocusParentView")
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
