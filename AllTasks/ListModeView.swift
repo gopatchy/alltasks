@@ -9,10 +9,11 @@ struct ListModeView: View {
     
     var body: some View {
         HSplitView {
-            VStack(spacing: 0) {
-                ScrollView {
-                    VStack(spacing: 8) {
-                        ForEach(tasks) { task in
+            ScrollViewReader { proxy in
+                VStack(spacing: 0) {
+                    ScrollView {
+                        VStack(spacing: 8) {
+                            ForEach(tasks) { task in
                             HStack {
                                 Button(action: {
                                     task.isCompleted.toggle()
@@ -43,10 +44,18 @@ struct ListModeView: View {
                             .onTapGesture {
                                 selectedTask = task
                             }
+                            .id(task.id)
                         }
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 8)
+                }
+                .onChange(of: selectedTask) { _, newTask in
+                    if let task = newTask {
+                        Task { @MainActor in
+                            proxy.scrollTo(task.id, anchor: .center)
+                        }
+                    }
                 }
                 .focusable()
                 .focused($isFocused)
@@ -59,8 +68,22 @@ struct ListModeView: View {
                     selectPreviousTask()
                     return .handled
                 }
+                }
+                .frame(minWidth: 250)
+                .onAppear {
+                    isFocused = true
+                    // Select first task if none selected
+                    if selectedTask == nil && !tasks.isEmpty {
+                        selectedTask = tasks.first
+                    }
+                    // Scroll to selected task when view appears
+                    if let task = selectedTask {
+                        Task { @MainActor in
+                            proxy.scrollTo(task.id, anchor: .center)
+                        }
+                    }
+                }
             }
-            .frame(minWidth: 250)
             
             VStack {
                 if let task = selectedTask {
@@ -76,12 +99,9 @@ struct ListModeView: View {
             }
             .frame(minWidth: 300)
         }
-        .onAppear {
-            isFocused = true
-            // Select first task if none selected
-            if selectedTask == nil && !tasks.isEmpty {
-                selectedTask = tasks.first
-            }
+        .onDisappear {
+            // Clear focus when leaving the view
+            isFocused = false
         }
     }
     

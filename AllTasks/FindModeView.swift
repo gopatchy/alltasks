@@ -22,8 +22,9 @@ struct FindModeView: View {
     
     var body: some View {
         HSplitView {
-            VStack(spacing: 0) {
-                HStack {
+            ScrollViewReader { proxy in
+                VStack(spacing: 0) {
+                    HStack {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.secondary)
                     
@@ -89,10 +90,18 @@ struct FindModeView: View {
                             .onTapGesture {
                                 selectedTask = task
                             }
+                            .id(task.id)
                         }
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 8)
+                }
+                .onChange(of: selectedTask) { _, newTask in
+                    if let task = newTask {
+                        Task { @MainActor in
+                            proxy.scrollTo(task.id, anchor: .center)
+                        }
+                    }
                 }
                 .focusable()
                 .focused($isFocused)
@@ -110,8 +119,25 @@ struct FindModeView: View {
                     isSearchFieldFocused = true
                     return .handled
                 }
+                }
+                .frame(minWidth: 250)
+                .onAppear {
+                    // Focus search field
+                    Task { @MainActor in
+                        isSearchFieldFocused = true
+                    }
+                    // Select first filtered task if none selected
+                    if selectedTask == nil && !filteredTasks.isEmpty {
+                        selectedTask = filteredTasks.first
+                    }
+                    // Scroll to selected task when view appears
+                    if let task = selectedTask {
+                        Task { @MainActor in
+                            proxy.scrollTo(task.id, anchor: .center)
+                        }
+                    }
+                }
             }
-            .frame(minWidth: 250)
             
             VStack {
                 if let task = selectedTask {
@@ -127,17 +153,6 @@ struct FindModeView: View {
             }
             .frame(minWidth: 300)
         }
-        .onAppear {
-            // Focus search field with a small delay to ensure view is rendered
-            Task { @MainActor in
-                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-                isSearchFieldFocused = true
-            }
-            // Select first filtered task if none selected
-            if selectedTask == nil && !filteredTasks.isEmpty {
-                selectedTask = filteredTasks.first
-            }
-        }
         .onChange(of: searchText) { _, _ in
             // Update selected task if current selection is not in filtered results
             if let selected = selectedTask, !filteredTasks.contains(where: { $0.id == selected.id }) {
@@ -147,6 +162,10 @@ struct FindModeView: View {
         .onReceive(NotificationCenter.default.publisher(for: .clearAndFocusSearch)) { _ in
             searchText = ""
             isSearchFieldFocused = true
+        }
+        .onDisappear {
+            // Clear search field focus when leaving the view
+            isSearchFieldFocused = false
         }
     }
     

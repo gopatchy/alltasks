@@ -48,19 +48,18 @@ struct TaskListView: View {
         }
         .focused($isTaskListViewFocused)
         .onChange(of: selectedMode) { oldValue, newValue in
-            if newValue == .list {
-                // Ensure list gets focus when switching to list mode
-                Task { @MainActor in
+            // Clear all focus states first
+            isListFocused = false
+            isFindFocused = false
+            isTaskListViewFocused = false
+            
+            // Then set the appropriate focus with a small delay
+            Task { @MainActor in
+                if newValue == .list {
                     isListFocused = true
-                }
-            } else if newValue == .find {
-                // Ensure find gets focus when switching to find mode
-                Task { @MainActor in
+                } else if newValue == .find {
                     isFindFocused = true
-                }
-            } else if newValue == .focus || newValue == .prioritize {
-                // Ensure TaskListView keeps focus in One mode and Prioritize mode
-                Task { @MainActor in
+                } else if newValue == .focus || newValue == .prioritize {
                     isTaskListViewFocused = true
                 }
             }
