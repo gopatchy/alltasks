@@ -4,16 +4,18 @@ import SwiftData
 struct FindModeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var tasks: [TaskItem]
+    @Query private var comparisons: [Comparison]
     @Binding var selectedTask: TaskItem?
     @FocusState var isFocused: Bool
     @State private var searchText = ""
     @FocusState private var isSearchFieldFocused: Bool
     
     var filteredTasks: [TaskItem] {
+        let sorted = TaskSorter.sortTasks(tasks, using: comparisons)
         if searchText.isEmpty {
-            return tasks
+            return sorted
         } else {
-            return tasks.filter { task in
+            return sorted.filter { task in
                 task.title.localizedCaseInsensitiveContains(searchText) ||
                 task.details.localizedCaseInsensitiveContains(searchText)
             }

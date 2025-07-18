@@ -4,8 +4,13 @@ import SwiftData
 struct ListModeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var tasks: [TaskItem]
+    @Query private var comparisons: [Comparison]
     @Binding var selectedTask: TaskItem?
     @FocusState var isFocused: Bool
+    
+    var sortedTasks: [TaskItem] {
+        TaskSorter.sortTasks(tasks, using: comparisons)
+    }
     
     var body: some View {
         HSplitView {
@@ -13,7 +18,7 @@ struct ListModeView: View {
                 VStack(spacing: 0) {
                     ScrollView {
                         VStack(spacing: 8) {
-                            ForEach(tasks) { task in
+                            ForEach(sortedTasks) { task in
                             HStack {
                                 Button(action: {
                                     task.isCompleted.toggle()
@@ -73,8 +78,8 @@ struct ListModeView: View {
                 .onAppear {
                     isFocused = true
                     // Select first task if none selected
-                    if selectedTask == nil && !tasks.isEmpty {
-                        selectedTask = tasks.first
+                    if selectedTask == nil && !sortedTasks.isEmpty {
+                        selectedTask = sortedTasks.first
                     }
                     // Scroll to selected task when view appears
                     if let task = selectedTask {
@@ -107,17 +112,17 @@ struct ListModeView: View {
     
     private func selectNextTask() {
         guard let currentTask = selectedTask,
-              let currentIndex = tasks.firstIndex(where: { $0.id == currentTask.id }),
-              currentIndex < tasks.count - 1 else { return }
+              let currentIndex = sortedTasks.firstIndex(where: { $0.id == currentTask.id }),
+              currentIndex < sortedTasks.count - 1 else { return }
         
-        selectedTask = tasks[currentIndex + 1]
+        selectedTask = sortedTasks[currentIndex + 1]
     }
     
     private func selectPreviousTask() {
         guard let currentTask = selectedTask,
-              let currentIndex = tasks.firstIndex(where: { $0.id == currentTask.id }),
+              let currentIndex = sortedTasks.firstIndex(where: { $0.id == currentTask.id }),
               currentIndex > 0 else { return }
         
-        selectedTask = tasks[currentIndex - 1]
+        selectedTask = sortedTasks[currentIndex - 1]
     }
 }

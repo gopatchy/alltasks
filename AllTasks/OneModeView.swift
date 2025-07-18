@@ -4,12 +4,14 @@ import SwiftData
 struct OneModeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var tasks: [TaskItem]
+    @Query private var comparisons: [Comparison]
     @State private var currentTaskIndex = 0
     @FocusState private var isOneModeViewFocused: Bool
     @Binding var selectedTask: TaskItem?
     
     var incompleteTasks: [TaskItem] {
-        tasks.filter { !$0.isCompleted }
+        let incomplete = tasks.filter { !$0.isCompleted }
+        return TaskSorter.sortTasks(incomplete, using: comparisons)
     }
     
     var body: some View {
