@@ -32,10 +32,13 @@ struct ListModeView: View {
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
                             .contentShape(Rectangle())
-                            .glassEffect(in: RoundedRectangle(cornerRadius: 8))
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(selectedTask?.id == task.id ? Color.accentColor.opacity(0.1) : Color.clear)
+                                    .fill(selectedTask?.id == task.id ? Color.accentColor.opacity(0.2) : Color(NSColor.controlBackgroundColor))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(selectedTask?.id == task.id ? Color.accentColor.opacity(0.3) : Color.clear, lineWidth: 1)
                             )
                             .onTapGesture {
                                 selectedTask = task
