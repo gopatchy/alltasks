@@ -29,9 +29,9 @@ struct TodoListView: View {
                         isFocused: _isListFocused
                     )
                 case .addTask:
-                    AddTaskView()
+                    NewModeView()
                 case .focus:
-                    FocusModeView(selectedTodo: $selectedTodo)
+                    OneModeView(selectedTodo: $selectedTodo)
                 case .prioritize:
                     PrioritizeModeView()
                 }

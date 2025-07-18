@@ -50,13 +50,7 @@ struct TodoApp: App {
                 // Keeps other File menu items but removes Close
             }
             CommandMenu("View") {
-                Button("List") {
-                    selectedMode = .list
-                    focusListAction?()
-                }
-                .keyboardShortcut("l", modifiers: .command)
-                
-                Button("Add Task") {
+                Button("New") {
                     // If already in add task mode, create a new task
                     if selectedMode == .addTask {
                         NotificationCenter.default.post(name: .createNewTask, object: nil)
@@ -66,7 +60,13 @@ struct TodoApp: App {
                 }
                 .keyboardShortcut("n", modifiers: .command)
                 
-                Button("Focus") {
+                Button("List") {
+                    selectedMode = .list
+                    focusListAction?()
+                }
+                .keyboardShortcut("l", modifiers: .command)
+                
+                Button("One") {
                     selectedMode = .focus
                 }
                 .keyboardShortcut("o", modifiers: .command)

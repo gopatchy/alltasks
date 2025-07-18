@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-struct FocusModeView: View {
+struct OneModeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var todos: [TodoItem]
     @State private var currentTodoIndex = 0

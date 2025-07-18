@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-struct AddTaskView: View {
+struct NewModeView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var currentTask: TodoItem = TodoItem(title: "")
     @State private var isTaskInserted: Bool = false
