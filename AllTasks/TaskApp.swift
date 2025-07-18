@@ -82,7 +82,7 @@ struct TaskApp: App {
                     NotificationCenter.default.post(name: .editTask, object: nil)
                 }
                 .keyboardShortcut("e", modifiers: .command)
-                .disabled(selectedTask?.wrappedValue == nil)
+                .disabled(selectedTask?.wrappedValue == nil || selectedMode == .prioritize)
                 
                 Divider()
                 
