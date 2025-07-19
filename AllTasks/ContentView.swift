@@ -8,10 +8,16 @@ struct ContentView: View {
     @Binding var selectedMode: ViewMode
     @State private var selectedTask: TaskItem?
     @State private var searchText = ""
+    @State private var wantTaskOffset = 0
     @FocusState private var focused: Bool
     
     var sortedTasks: [TaskItem] {
         TaskSorter.sortTasks(tasks, using: comparisons)
+    }
+    
+    var incompleteTasks: [TaskItem] {
+        let incomplete = tasks.filter { !$0.isCompleted }
+        return TaskSorter.sortTasks(incomplete, using: comparisons)
     }
     
     var filteredTasks: [TaskItem] {
@@ -52,7 +58,7 @@ struct ContentView: View {
                 case .addTask:
                     NewModeView()
                 case .focus:
-                    OneModeView(selectedTask: $selectedTask)
+                    OneModeView(selectedTask: $selectedTask, wantTaskOffset: $wantTaskOffset)
                 case .prioritize:
                     PrioritizeModeView()
                 }
@@ -63,21 +69,46 @@ struct ContentView: View {
         .focusEffectDisabled()
         .onAppear {
             focused = true
+            selectedTask = sortedTasks.first
         }
-        .onChange(of: selectedMode) { _, _ in
+        .onChange(of: selectedMode) { _, newMode in
             focused = true
         }
-        .onReceive(NotificationCenter.default.publisher(for: .clearAndFocusSearch)) { _ in
-            if selectedMode == .find {
-                searchText = ""
+        .onChange(of: selectedTask) { _, newTask in
+            if newTask == nil {
+                let taskList = getTaskList()
+                selectedTask = taskList.first
             }
         }
+        .onChange(of: wantTaskOffset) { _, _ in
+            let taskList = getTaskList()
+            guard !taskList.isEmpty else { return }
+            
+            if let currentTask = selectedTask,
+               let currentIndex = taskList.firstIndex(where: { $0.id == currentTask.id }) {
+                let newIndex = (currentIndex + wantTaskOffset) % taskList.count
+                let wrappedIndex = newIndex < 0 ? newIndex + taskList.count : newIndex
+                selectedTask = taskList[wrappedIndex]
+            } else {
+                selectedTask = taskList.first
+            }
+            
+            wantTaskOffset = 0
+        }
         .onKeyPress(.upArrow) {
-            selectPreviousTask()
+            wantTaskOffset -= 1
             return .handled
         }
         .onKeyPress(.downArrow) {
-            selectNextTask()
+            wantTaskOffset += 1
+            return .handled
+        }
+        .onKeyPress(.leftArrow) {
+            wantTaskOffset -= 1
+            return .handled
+        }
+        .onKeyPress(.rightArrow) {
+            wantTaskOffset += 1
             return .handled
         }
     }
@@ -88,26 +119,11 @@ struct ContentView: View {
             return sortedTasks
         case .find:
             return filteredTasks
+        case .focus:
+            return incompleteTasks
         default:
             return []
         }
     }
     
-    private func selectNextTask() {
-        let taskList = getTaskList()
-        guard let currentTask = selectedTask,
-              let currentIndex = taskList.firstIndex(where: { $0.id == currentTask.id }),
-              currentIndex < taskList.count - 1 else { return }
-        
-        selectedTask = taskList[currentIndex + 1]
-    }
-    
-    private func selectPreviousTask() {
-        let taskList = getTaskList()
-        guard let currentTask = selectedTask,
-              let currentIndex = taskList.firstIndex(where: { $0.id == currentTask.id }),
-              currentIndex > 0 else { return }
-        
-        selectedTask = taskList[currentIndex - 1]
-    }
 }
