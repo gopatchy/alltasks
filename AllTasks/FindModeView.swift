@@ -3,24 +3,10 @@ import SwiftData
 
 struct FindModeView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var tasks: [TaskItem]
-    @Query private var comparisons: [Comparison]
     @Binding var selectedTask: TaskItem?
-    @FocusState var isFocused: Bool
-    @State private var searchText = ""
+    @Binding var searchText: String
+    let filteredTasks: [TaskItem]
     @FocusState private var isSearchFieldFocused: Bool
-    
-    var filteredTasks: [TaskItem] {
-        let sorted = TaskSorter.sortTasks(tasks, using: comparisons)
-        if searchText.isEmpty {
-            return sorted
-        } else {
-            return sorted.filter { task in
-                task.title.localizedCaseInsensitiveContains(searchText) ||
-                task.details.localizedCaseInsensitiveContains(searchText)
-            }
-        }
-    }
     
     var body: some View {
         HSplitView {
@@ -36,7 +22,6 @@ struct FindModeView: View {
                         .onSubmit {
                             if !filteredTasks.isEmpty {
                                 selectedTask = filteredTasks.first
-                                isFocused = true
                             }
                         }
                     
@@ -100,43 +85,22 @@ struct FindModeView: View {
                 }
                 .onChange(of: selectedTask) { _, newTask in
                     if let task = newTask {
-                        Task { @MainActor in
-                            proxy.scrollTo(task.id, anchor: .center)
-                        }
+                        proxy.scrollTo(task.id, anchor: .center)
                     }
                 }
                 .focusable()
-                .focused($isFocused)
                 .focusEffectDisabled()
-                .onKeyPress(.downArrow) {
-                    selectNextTask()
-                    return .handled
-                }
-                .onKeyPress(.upArrow) {
-                    selectPreviousTask()
-                    return .handled
-                }
-                .onKeyPress(.escape) {
-                    searchText = ""
-                    isSearchFieldFocused = true
-                    return .handled
-                }
                 }
                 .frame(minWidth: 250)
                 .onAppear {
-                    // Focus search field
-                    Task { @MainActor in
-                        isSearchFieldFocused = true
-                    }
-                    // Select first filtered task if none selected
+                    isSearchFieldFocused = true
+                    
                     if selectedTask == nil && !filteredTasks.isEmpty {
                         selectedTask = filteredTasks.first
                     }
-                    // Scroll to selected task when view appears
+                    
                     if let task = selectedTask {
-                        Task { @MainActor in
-                            proxy.scrollTo(task.id, anchor: .center)
-                        }
+                        proxy.scrollTo(task.id, anchor: .center)
                     }
                 }
             }
@@ -156,34 +120,9 @@ struct FindModeView: View {
             .frame(minWidth: 300)
         }
         .onChange(of: searchText) { _, _ in
-            // Update selected task if current selection is not in filtered results
             if let selected = selectedTask, !filteredTasks.contains(where: { $0.id == selected.id }) {
                 selectedTask = filteredTasks.first
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .clearAndFocusSearch)) { _ in
-            searchText = ""
-            isSearchFieldFocused = true
-        }
-        .onDisappear {
-            // Clear search field focus when leaving the view
-            isSearchFieldFocused = false
-        }
-    }
-    
-    private func selectNextTask() {
-        guard let currentTask = selectedTask,
-              let currentIndex = filteredTasks.firstIndex(where: { $0.id == currentTask.id }),
-              currentIndex < filteredTasks.count - 1 else { return }
-        
-        selectedTask = filteredTasks[currentIndex + 1]
-    }
-    
-    private func selectPreviousTask() {
-        guard let currentTask = selectedTask,
-              let currentIndex = filteredTasks.firstIndex(where: { $0.id == currentTask.id }),
-              currentIndex > 0 else { return }
-        
-        selectedTask = filteredTasks[currentIndex - 1]
     }
 }
