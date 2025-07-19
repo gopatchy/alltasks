@@ -3,14 +3,8 @@ import SwiftData
 
 struct ListModeView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var tasks: [TaskItem]
-    @Query private var comparisons: [Comparison]
     @Binding var selectedTask: TaskItem?
-    @FocusState var isFocused: Bool
-    
-    var sortedTasks: [TaskItem] {
-        TaskSorter.sortTasks(tasks, using: comparisons)
-    }
+    let sortedTasks: [TaskItem]
     
     var body: some View {
         HSplitView {
@@ -63,20 +57,10 @@ struct ListModeView: View {
                     }
                 }
                 .focusable()
-                .focused($isFocused)
                 .focusEffectDisabled()
-                .onKeyPress(.downArrow) {
-                    selectNextTask()
-                    return .handled
-                }
-                .onKeyPress(.upArrow) {
-                    selectPreviousTask()
-                    return .handled
-                }
                 }
                 .frame(minWidth: 250)
                 .onAppear {
-                    isFocused = true
                     // Select first task if none selected
                     if selectedTask == nil && !sortedTasks.isEmpty {
                         selectedTask = sortedTasks.first
@@ -104,25 +88,5 @@ struct ListModeView: View {
             }
             .frame(minWidth: 300)
         }
-        .onDisappear {
-            // Clear focus when leaving the view
-            isFocused = false
-        }
-    }
-    
-    private func selectNextTask() {
-        guard let currentTask = selectedTask,
-              let currentIndex = sortedTasks.firstIndex(where: { $0.id == currentTask.id }),
-              currentIndex < sortedTasks.count - 1 else { return }
-        
-        selectedTask = sortedTasks[currentIndex + 1]
-    }
-    
-    private func selectPreviousTask() {
-        guard let currentTask = selectedTask,
-              let currentIndex = sortedTasks.firstIndex(where: { $0.id == currentTask.id }),
-              currentIndex > 0 else { return }
-        
-        selectedTask = sortedTasks[currentIndex - 1]
     }
 }
