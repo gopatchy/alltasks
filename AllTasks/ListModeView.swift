@@ -14,49 +14,47 @@ struct ListModeView: View {
                     ScrollView {
                         VStack(spacing: 8) {
                             ForEach(sortedTasks) { task in
-                            HStack {
-                                Button(action: {
-                                    task.isCompleted.toggle()
-                                }) {
-                                    Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                                        .foregroundColor(task.isCompleted ? .purple : .gray)
-                                        .font(.title3)
+                                HStack {
+                                    Button(action: {
+                                        task.isCompleted.toggle()
+                                    }) {
+                                        Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                                            .foregroundColor(task.isCompleted ? .purple : .gray)
+                                            .font(.title3)
+                                    }
+                                    .buttonStyle(BorderlessButtonStyle())
+                                    
+                                    Text(task.title)
+                                        .strikethrough(task.isCompleted)
+                                        .foregroundColor(task.isCompleted ? .gray : .primary)
+                                    
+                                    Spacer()
                                 }
-                                .buttonStyle(BorderlessButtonStyle())
-                                
-                                Text(task.title)
-                                    .strikethrough(task.isCompleted)
-                                    .foregroundColor(task.isCompleted ? .gray : .primary)
-                                
-                                Spacer()
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .contentShape(Rectangle())
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(selectedTask?.id == task.id ? Color.accentColor.opacity(0.2) : Color(NSColor.controlBackgroundColor))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(selectedTask?.id == task.id ? Color.accentColor.opacity(0.3) : Color.clear, lineWidth: 1)
+                                )
+                                .onTapGesture {
+                                    selectedTask = task
+                                }
+                                .id(task.id)
                             }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .contentShape(Rectangle())
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(selectedTask?.id == task.id ? Color.accentColor.opacity(0.2) : Color(NSColor.controlBackgroundColor))
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(selectedTask?.id == task.id ? Color.accentColor.opacity(0.3) : Color.clear, lineWidth: 1)
-                            )
-                            .onTapGesture {
-                                selectedTask = task
-                            }
-                            .id(task.id)
                         }
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
                     }
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
                 }
                 .onChange(of: selectedTask) { _, newTask in
                     if let task = newTask {
                         proxy.scrollTo(task.id, anchor: .center)
                     }
-                }
-                .focusable()
-                .focusEffectDisabled()
                 }
                 .frame(minWidth: 250)
                 .onAppear {

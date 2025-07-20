@@ -9,7 +9,6 @@ struct PrioritizeModeView: View {
     @State private var currentComparison: (TaskItem, TaskItem)?
     @State private var sortedTasks: [TaskItem] = []
     @State private var currentSessionId = UUID()
-    @FocusState private var isFocused: Bool
     @Binding var editing: Bool
     
     var incompleteTasks: [TaskItem] {
@@ -64,9 +63,6 @@ struct PrioritizeModeView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .focusable()
-        .focused($isFocused)
-        .focusEffectDisabled()
         .onKeyPress(.leftArrow) {
             if let comparison = currentComparison {
                 selectTask(comparison.0)
@@ -83,7 +79,6 @@ struct PrioritizeModeView: View {
         }
         .onAppear {
             startSorting()
-            isFocused = true
         }
         .onReceive(NotificationCenter.default.publisher(for: .restartPrioritization)) { _ in
             startSorting()

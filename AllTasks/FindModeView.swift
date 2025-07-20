@@ -14,83 +14,81 @@ struct FindModeView: View {
             ScrollViewReader { proxy in
                 VStack(spacing: 0) {
                     HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.secondary)
                     
-                    TextField("Search tasks...", text: $searchText)
-                        .textFieldStyle(.plain)
-                        .focused($isSearchFieldFocused)
-                        .onSubmit {
-                            if !filteredTasks.isEmpty {
-                                selectedTask = filteredTasks.first
-                            }
-                        }
-                    
-                    if !searchText.isEmpty {
-                        Button(action: {
-                            searchText = ""
-                            isSearchFieldFocused = true
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
-                        }
-                        .buttonStyle(BorderlessButtonStyle())
-                    }
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .glassEffect(in: RoundedRectangle(cornerRadius: 20))
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                
-                Divider()
-                
-                ScrollView {
-                    VStack(spacing: 8) {
-                        ForEach(filteredTasks) { task in
-                            HStack {
-                                Button(action: {
-                                    task.isCompleted.toggle()
-                                }) {
-                                    Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                                        .foregroundColor(task.isCompleted ? .purple : .gray)
-                                        .font(.title3)
+                        TextField("Search tasks...", text: $searchText)
+                            .textFieldStyle(.plain)
+                            .focused($isSearchFieldFocused)
+                            .onSubmit {
+                                if !filteredTasks.isEmpty {
+                                    selectedTask = filteredTasks.first
                                 }
-                                .buttonStyle(BorderlessButtonStyle())
-                                
-                                Text(task.title)
-                                    .strikethrough(task.isCompleted)
-                                    .foregroundColor(task.isCompleted ? .gray : .primary)
-                                
-                                Spacer()
                             }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .contentShape(Rectangle())
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(selectedTask?.id == task.id ? Color.accentColor.opacity(0.2) : Color(NSColor.controlBackgroundColor))
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(selectedTask?.id == task.id ? Color.accentColor.opacity(0.3) : Color.clear, lineWidth: 1)
-                            )
-                            .onTapGesture {
-                                selectedTask = task
+                    
+                        if !searchText.isEmpty {
+                            Button(action: {
+                                searchText = ""
+                                isSearchFieldFocused = true
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.secondary)
                             }
-                            .id(task.id)
+                            .buttonStyle(BorderlessButtonStyle())
                         }
                     }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .glassEffect(in: RoundedRectangle(cornerRadius: 20))
                     .padding(.horizontal)
                     .padding(.vertical, 8)
-                }
-                .onChange(of: selectedTask) { _, newTask in
-                    if let task = newTask {
-                        proxy.scrollTo(task.id, anchor: .center)
+                
+                    Divider()
+                    
+                    ScrollView {
+                        VStack(spacing: 8) {
+                            ForEach(filteredTasks) { task in
+                                HStack {
+                                    Button(action: {
+                                        task.isCompleted.toggle()
+                                    }) {
+                                        Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                                            .foregroundColor(task.isCompleted ? .purple : .gray)
+                                            .font(.title3)
+                                    }
+                                    .buttonStyle(BorderlessButtonStyle())
+                                    
+                                    Text(task.title)
+                                        .strikethrough(task.isCompleted)
+                                        .foregroundColor(task.isCompleted ? .gray : .primary)
+                                    
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .contentShape(Rectangle())
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(selectedTask?.id == task.id ? Color.accentColor.opacity(0.2) : Color(NSColor.controlBackgroundColor))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(selectedTask?.id == task.id ? Color.accentColor.opacity(0.3) : Color.clear, lineWidth: 1)
+                                )
+                                .onTapGesture {
+                                    selectedTask = task
+                                }
+                                .id(task.id)
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
                     }
-                }
-                .focusable()
-                .focusEffectDisabled()
+                    .onChange(of: selectedTask) { _, newTask in
+                        if let task = newTask {
+                            proxy.scrollTo(task.id, anchor: .center)
+                        }
+                    }
                 }
                 .frame(minWidth: 250)
                 .onAppear {
