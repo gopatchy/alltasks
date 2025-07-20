@@ -7,6 +7,7 @@ struct FindModeView: View {
     @Binding var searchText: String
     let filteredTasks: [TaskItem]
     @FocusState private var isSearchFieldFocused: Bool
+    @Binding var editing: Bool
     
     var body: some View {
         HSplitView {
@@ -107,7 +108,10 @@ struct FindModeView: View {
             
             VStack {
                 if let task = selectedTask {
-                    TaskDetailCard(task: task, isEditable: false)
+                    TaskDetailCard(
+                        task: task,
+                        editing: $editing
+                    )
                         .padding()
                         .glassEffect(in: RoundedRectangle(cornerRadius: 12))
                         .padding()

@@ -5,6 +5,7 @@ struct OneModeView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var selectedTask: TaskItem?
     @Binding var wantTaskOffset: Int
+    @Binding var editing: Bool
     
     var body: some View {
         VStack {
@@ -21,7 +22,7 @@ struct OneModeView: View {
                         .buttonStyle(PlainButtonStyle())
                         .glassEffect(in: Circle())
                         
-                        TaskDetailCard(task: task, isEditable: false)
+                        TaskDetailCard(task: task, editing: $editing)
                             .frame(maxWidth: 600)
                             .padding()
                             .glassEffect(in: RoundedRectangle(cornerRadius: 12))

@@ -9,6 +9,7 @@ struct ContentView: View {
     @State private var selectedTask: TaskItem?
     @State private var searchText = ""
     @State private var wantTaskOffset = 0
+    @State private var editing = false
     @FocusState private var focused: Bool
     
     var sortedTasks: [TaskItem] {
@@ -47,20 +48,30 @@ struct ContentView: View {
                 case .list:
                     ListModeView(
                         selectedTask: $selectedTask,
-                        sortedTasks: sortedTasks
+                        sortedTasks: sortedTasks,
+                        editing: $editing
                     )
                 case .find:
                     FindModeView(
                         selectedTask: $selectedTask,
                         searchText: $searchText,
-                        filteredTasks: filteredTasks
+                        filteredTasks: filteredTasks,
+                        editing: $editing
                     )
                 case .addTask:
-                    NewModeView()
+                    NewModeView(
+                        editing: $editing
+                    )
                 case .focus:
-                    OneModeView(selectedTask: $selectedTask, wantTaskOffset: $wantTaskOffset)
+                    OneModeView(
+                        selectedTask: $selectedTask,
+                        wantTaskOffset: $wantTaskOffset,
+                        editing: $editing
+                    )
                 case .prioritize:
-                    PrioritizeModeView()
+                    PrioritizeModeView(
+                        editing: $editing
+                    )
                 }
             }
         }
@@ -73,6 +84,7 @@ struct ContentView: View {
         }
         .onChange(of: selectedMode) { _, newMode in
             focused = true
+            editing = false
         }
         .onChange(of: selectedTask) { _, newTask in
             if newTask == nil {
@@ -96,18 +108,30 @@ struct ContentView: View {
             wantTaskOffset = 0
         }
         .onKeyPress(.upArrow) {
+            if editing {
+                return .ignored
+            }
             wantTaskOffset -= 1
             return .handled
         }
         .onKeyPress(.downArrow) {
+            if editing {
+                return .ignored
+            }
             wantTaskOffset += 1
             return .handled
         }
         .onKeyPress(.leftArrow) {
+            if editing {
+                return .ignored
+            }
             wantTaskOffset -= 1
             return .handled
         }
         .onKeyPress(.rightArrow) {
+            if editing {
+                return .ignored
+            }
             wantTaskOffset += 1
             return .handled
         }

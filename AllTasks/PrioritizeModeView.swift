@@ -10,6 +10,7 @@ struct PrioritizeModeView: View {
     @State private var sortedTasks: [TaskItem] = []
     @State private var currentSessionId = UUID()
     @FocusState private var isFocused: Bool
+    @Binding var editing: Bool
     
     var incompleteTasks: [TaskItem] {
         tasks.filter { !$0.isCompleted }
@@ -34,14 +35,16 @@ struct PrioritizeModeView: View {
                             task: comparison.0,
                             action: { selectTask(comparison.0) },
                             color: .purple,
-                            alignment: .leading
+                            alignment: .leading,
+                            editing: $editing
                         )
                         
                         TaskComparisonView(
                             task: comparison.1,
                             action: { selectTask(comparison.1) },
                             color: .purple,
-                            alignment: .trailing
+                            alignment: .trailing,
+                            editing: $editing
                         )
                     }
                     
@@ -212,10 +215,11 @@ struct TaskComparisonView: View {
     let action: () -> Void
     let color: Color
     let alignment: Alignment
+    @Binding var editing: Bool
     
     var body: some View {
         VStack(spacing: 16) {
-            TaskDetailCard(task: task, isEditable: false)
+            TaskDetailCard(task: task, editing: $editing)
                 .glassEffect(in: RoundedRectangle(cornerRadius: 8))
             
             HStack {

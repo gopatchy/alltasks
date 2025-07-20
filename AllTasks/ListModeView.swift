@@ -5,6 +5,7 @@ struct ListModeView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var selectedTask: TaskItem?
     let sortedTasks: [TaskItem]
+    @Binding var editing: Bool
     
     var body: some View {
         HSplitView {
@@ -51,9 +52,7 @@ struct ListModeView: View {
                 }
                 .onChange(of: selectedTask) { _, newTask in
                     if let task = newTask {
-                        Task { @MainActor in
-                            proxy.scrollTo(task.id, anchor: .center)
-                        }
+                        proxy.scrollTo(task.id, anchor: .center)
                     }
                 }
                 .focusable()
@@ -67,16 +66,17 @@ struct ListModeView: View {
                     }
                     // Scroll to selected task when view appears
                     if let task = selectedTask {
-                        Task { @MainActor in
-                            proxy.scrollTo(task.id, anchor: .center)
-                        }
+                        proxy.scrollTo(task.id, anchor: .center)
                     }
                 }
             }
             
             VStack {
                 if let task = selectedTask {
-                    TaskDetailCard(task: task, isEditable: false)
+                    TaskDetailCard(
+                        task: task,
+                        editing: $editing
+                    )
                         .padding()
                         .glassEffect(in: RoundedRectangle(cornerRadius: 12))
                         .padding()

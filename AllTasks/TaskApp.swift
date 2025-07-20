@@ -51,7 +51,7 @@ struct TaskApp: App {
                 // Removes New Window menu item
             }
             CommandGroup(replacing: .saveItem) {
-                Button("Export Tasks...") {
+                Button("Export...") {
                     // Fetch all tasks from the model context
                     let context = sharedModelContainer.mainContext
                     let descriptor = FetchDescriptor<TaskItem>()
@@ -65,7 +65,7 @@ struct TaskApp: App {
                 }
                 .keyboardShortcut("e", modifiers: [.command, .shift])
             }
-            CommandMenu("View") {
+            CommandMenu("Mode") {
                 Button("New") {
                     // If already in add task mode, create a new task
                     if selectedMode == .addTask {

@@ -6,10 +6,15 @@ struct NewModeView: View {
     @State private var currentTask: TaskItem = TaskItem(title: "")
     @State private var isTaskInserted: Bool = false
     @State private var taskId: UUID = UUID()
+    @Binding var editing: Bool
     
     var body: some View {
         VStack {
-            TaskDetailCard(task: currentTask, isEditable: true, focusTitleOnAppear: true)
+            TaskDetailCard(
+                task: currentTask,
+                editing: $editing,
+                focusTitleOnAppear: true
+            )
                 .frame(maxWidth: 600)
                 .padding()
                 .id(taskId)
