@@ -5,6 +5,7 @@ import AppKit
 extension Notification.Name {
     static let editTask = Notification.Name("editTask")
     static let newTask = Notification.Name("newTask")
+    static let releaseFocus = Notification.Name("releaseFocus")
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {

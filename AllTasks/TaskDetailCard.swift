@@ -5,6 +5,7 @@ struct TaskDetailCard: View {
     let task: TaskItem
     @Binding var editing: Bool
     var focusTitleOnAppear: Bool = false
+    var releaseFocus: Bool = true
     @State private var editedTitle: String = ""
     @State private var editedDetails: String = ""
     @FocusState private var titleFocused: Bool
@@ -75,6 +76,13 @@ struct TaskDetailCard: View {
         }
         .onChange(of: detailsFocused) {
             editing = detailsFocused
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .editTask)) { _ in
+            if releaseFocus && (titleFocused || detailsFocused) {
+                NotificationCenter.default.post(name: .releaseFocus, object: nil)
+            } else {
+                titleFocused = true
+            }
         }
     }
 }

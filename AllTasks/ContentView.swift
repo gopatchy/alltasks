@@ -139,6 +139,9 @@ struct ContentView: View {
             focused = true
             return .handled
         }
+        .onReceive(NotificationCenter.default.publisher(for: .releaseFocus)) { _ in
+            focused = true
+        }
     }
     
     private func getTaskList() -> [TaskItem] {

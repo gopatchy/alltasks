@@ -33,17 +33,15 @@ struct PrioritizeModeView: View {
                         TaskComparisonView(
                             task: comparison.0,
                             action: { selectTask(comparison.0) },
-                            color: .purple,
                             alignment: .leading,
-                            editing: $editing
+                            editing: $editing,
                         )
                         
                         TaskComparisonView(
                             task: comparison.1,
                             action: { selectTask(comparison.1) },
-                            color: .purple,
                             alignment: .trailing,
-                            editing: $editing
+                            editing: $editing,
                         )
                     }
                     
@@ -205,13 +203,16 @@ struct PrioritizeModeView: View {
 struct TaskComparisonView: View {
     let task: TaskItem
     let action: () -> Void
-    let color: Color
     let alignment: Alignment
     @Binding var editing: Bool
     
     var body: some View {
         VStack(spacing: 16) {
-            TaskDetailCard(task: task, editing: $editing)
+            TaskDetailCard(
+                task: task,
+                editing: $editing,
+                releaseFocus: false
+            )
                 .glassEffect(in: RoundedRectangle(cornerRadius: 8))
             
             HStack {
@@ -225,7 +226,7 @@ struct TaskComparisonView: View {
                         .foregroundColor(.white)
                         .frame(width: 100)
                         .padding(.vertical, 8)
-                        .background(color.opacity(0.8))
+                        .background(.purple.opacity(0.8))
                         .cornerRadius(6)
                 }
                 .buttonStyle(PlainButtonStyle())
