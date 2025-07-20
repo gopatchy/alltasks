@@ -75,8 +75,8 @@ struct ContentView: View {
                 }
             }
         }
-        .focused($focused)
         .focusable()
+        .focused($focused)
         .focusEffectDisabled()
         .onAppear {
             focused = true
