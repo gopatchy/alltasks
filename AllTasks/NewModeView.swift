@@ -21,21 +21,18 @@ struct NewModeView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
-            // Force recreation of TaskDetailCard to trigger focus
             taskId = UUID()
         }
         .onChange(of: currentTask.title) { oldValue, newValue in
-            // Insert task into database when user starts typing
             if !isTaskInserted && !newValue.isEmpty {
                 modelContext.insert(currentTask)
                 isTaskInserted = true
                 try? modelContext.save()
             } else if isTaskInserted && !newValue.isEmpty {
-                // Auto-save changes
                 try? modelContext.save()
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .createNewTask)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .newTask)) { _ in
             if isTaskInserted {
                 createNewTask()
             }
@@ -43,9 +40,8 @@ struct NewModeView: View {
     }
     
     private func createNewTask() {
-        // Create a new task and reset state
         currentTask = TaskItem(title: "")
         isTaskInserted = false
-        taskId = UUID() // Force TaskDetailCard to recreate and focus
+        taskId = UUID()
     }
 }

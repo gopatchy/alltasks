@@ -61,7 +61,9 @@ struct TaskDetailCard: View {
             editedTitle = task.title
             editedDetails = task.details
             if focusTitleOnAppear {
-                titleFocused = true
+                Task { @MainActor in
+                    titleFocused = true
+                }
             }
         }
         .onChange(of: task) { _, _ in

@@ -80,9 +80,6 @@ struct PrioritizeModeView: View {
         .onAppear {
             startSorting()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .restartPrioritization)) { _ in
-            startSorting()
-        }
     }
     
     private func startSorting() {

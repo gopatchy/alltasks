@@ -3,11 +3,8 @@ import SwiftData
 import AppKit
 
 extension Notification.Name {
-    static let createNewTask = Notification.Name("createNewTask")
     static let editTask = Notification.Name("editTask")
-    static let refocusParentView = Notification.Name("refocusParentView")
-    static let clearAndFocusSearch = Notification.Name("clearAndFocusSearch")
-    static let restartPrioritization = Notification.Name("restartPrioritization")
+    static let newTask = Notification.Name("newTask")
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -69,12 +66,8 @@ struct TaskApp: App {
             }
             CommandMenu("Mode") {
                 Button("New") {
-                    // If already in add task mode, create a new task
-                    if selectedMode == .addTask {
-                        NotificationCenter.default.post(name: .createNewTask, object: nil)
-                    } else {
-                        selectedMode = .addTask
-                    }
+                    selectedMode = .addTask
+                    NotificationCenter.default.post(name: .newTask, object: nil)
                 }
                 .keyboardShortcut("n", modifiers: .command)
                 
@@ -84,11 +77,7 @@ struct TaskApp: App {
                 .keyboardShortcut("l", modifiers: .command)
                 
                 Button("Find") {
-                    if selectedMode == .find {
-                        NotificationCenter.default.post(name: .clearAndFocusSearch, object: nil)
-                    } else {
-                        selectedMode = .find
-                    }
+                    selectedMode = .find
                 }
                 .keyboardShortcut("f", modifiers: .command)
                 
@@ -98,11 +87,7 @@ struct TaskApp: App {
                 .keyboardShortcut("o", modifiers: .command)
                 
                 Button("Prioritize") {
-                    if selectedMode == .prioritize {
-                        NotificationCenter.default.post(name: .restartPrioritization, object: nil)
-                    } else {
-                        selectedMode = .prioritize
-                    }
+                    selectedMode = .prioritize
                 }
                 .keyboardShortcut("p", modifiers: .command)
             }
@@ -115,12 +100,14 @@ struct TaskApp: App {
                 Divider()
                 
                 Button("Delete") {
-                    if let task = selectedTask {
-                        if let context = task.modelContext {
-                            context.delete(task)
-                            selectedTask = nil
-                        }
+                    guard let task = selectedTask else {
+                        return
                     }
+                    guard let context = task.modelContext else {
+                        return
+                    }
+                    context.delete(task)
+                    selectedTask = nil
                 }
                 .disabled(selectedTask == nil)
             }
