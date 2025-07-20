@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ModeSwitcher: View {
+struct ViewModePicker: View {
     @Binding var selectedMode: ViewMode
     
     var body: some View {
@@ -14,6 +14,5 @@ struct ModeSwitcher: View {
         .labelsHidden()
         .tint(.purple)
         .glassEffect(in: RoundedRectangle(cornerRadius: 10))
-        .padding(.horizontal)
     }
 }

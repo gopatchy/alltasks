@@ -10,16 +10,24 @@ struct ContentView: View {
     @State private var searchText = ""
     @State private var wantTaskOffset = 0
     @State private var editing = false
+    @State private var taskFilter: TaskFilter = .incomplete
     @FocusState private var focused: Bool
     @FocusState private var searchFocused: Bool
     
     var sortedTasks: [TaskItem] {
-        TaskSorter.sortTasks(tasks, using: comparisons)
+        let sorted = TaskSorter.sortTasks(tasks, using: comparisons)
+        switch taskFilter {
+        case .incomplete:
+            return sorted.filter { !$0.isCompleted }
+        case .all:
+            return sorted
+        case .complete:
+            return sorted.filter { $0.isCompleted }
+        }
     }
     
     var incompleteTasks: [TaskItem] {
-        let incomplete = tasks.filter { !$0.isCompleted }
-        return TaskSorter.sortTasks(incomplete, using: comparisons)
+        return sortedTasks.filter { !$0.isCompleted }
     }
     
     var filteredTasks: [TaskItem] {
@@ -36,47 +44,14 @@ struct ContentView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
-                
-                    TextField("", text: $searchText)
-                        .textFieldStyle(.plain)
-                        .focused($searchFocused)
-                        .onSubmit {
-                            if !filteredTasks.isEmpty {
-                                selectedTask = filteredTasks.first
-                            }
-                        }
-                
-                    if !searchText.isEmpty {
-                        Button(action: {
-                            searchText = ""
-                            searchFocused = true
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
-                        }
-                        .buttonStyle(BorderlessButtonStyle())
-                    }
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.accentColor.opacity(0.3), lineWidth: searchFocused ? 1 : 0)
-                )
-                .glassEffect(in: RoundedRectangle(cornerRadius: 20))
-                .frame(maxWidth: 300)
-                
-                Spacer()
-                
-                // Mode switcher on the right
-                ModeSwitcher(selectedMode: $selectedMode)
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            TopBar(
+                taskFilter: $taskFilter,
+                searchText: $searchText,
+                isSearchFieldFocused: $searchFocused,
+                selectedMode: $selectedMode,
+                filteredTasks: filteredTasks,
+                selectedTask: $selectedTask
+            )
             
             Divider()
             

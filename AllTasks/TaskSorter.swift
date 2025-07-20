@@ -3,12 +3,8 @@ import SwiftData
 
 class TaskSorter {
     static func sortTasks(_ tasks: [TaskItem], using comparisons: [Comparison]) -> [TaskItem] {
-        // Separate completed and incomplete tasks
-        let incompleteTasks = tasks.filter { !$0.isCompleted }
-        let completedTasks = tasks.filter { $0.isCompleted }
-        
         // Start with the current order
-        var sorted = incompleteTasks
+        var sorted = Array(tasks)
         
         // Apply each comparison to enforce the ordering
         for comparison in comparisons.sorted(by: { $0.timestamp < $1.timestamp }) {
@@ -25,7 +21,6 @@ class TaskSorter {
             }
         }
         
-        // Return incomplete tasks first, then completed tasks
-        return sorted + completedTasks
+        return sorted
     }
 }
