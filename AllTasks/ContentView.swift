@@ -6,7 +6,7 @@ struct ContentView: View {
     @Query private var tasks: [TaskItem]
     @Query private var comparisons: [Comparison]
     @Binding var selectedMode: ViewMode
-    @State private var selectedTask: TaskItem?
+    @Binding var selectedTask: TaskItem?
     @State private var searchText = ""
     @State private var wantTaskOffset = 0
     @State private var editing = false

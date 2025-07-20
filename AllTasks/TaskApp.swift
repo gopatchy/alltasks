@@ -19,8 +19,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 @main
 struct TaskApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @FocusedValue(\.selectedTask) var selectedTask: Binding<TaskItem?>?
-    @FocusedValue(\.focusListAction) var focusListAction: (() -> Void)?
+    @State private var selectedTask: TaskItem? = nil
     @State private var selectedMode: ViewMode = .addTask
     
     var sharedModelContainer: ModelContainer = {
@@ -39,7 +38,10 @@ struct TaskApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(selectedMode: $selectedMode)
+            ContentView(
+                selectedMode: $selectedMode,
+                selectedTask: $selectedTask
+            )
                 .frame(minWidth: 800, minHeight: 600)
                 .accentColor(.purple)
         }
@@ -78,7 +80,6 @@ struct TaskApp: App {
                 
                 Button("List") {
                     selectedMode = .list
-                    focusListAction?()
                 }
                 .keyboardShortcut("l", modifiers: .command)
                 
@@ -110,20 +111,18 @@ struct TaskApp: App {
                     NotificationCenter.default.post(name: .editTask, object: nil)
                 }
                 .keyboardShortcut("e", modifiers: .command)
-                .disabled(selectedTask?.wrappedValue == nil || selectedMode == .prioritize)
                 
                 Divider()
                 
                 Button("Delete") {
-                    if let taskBinding = selectedTask,
-                       let task = taskBinding.wrappedValue {
+                    if let task = selectedTask {
                         if let context = task.modelContext {
                             context.delete(task)
-                            taskBinding.wrappedValue = nil
+                            selectedTask = nil
                         }
                     }
                 }
-                .disabled(selectedTask?.wrappedValue == nil)
+                .disabled(selectedTask == nil)
             }
         }
     }
