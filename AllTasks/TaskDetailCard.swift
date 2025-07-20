@@ -35,7 +35,7 @@ struct TaskDetailCard: View {
                 .glassEffect(in: RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.accentColor.opacity(0.3), lineWidth: 1)
+                        .stroke(Color.accentColor.opacity(0.3), lineWidth: titleFocused || detailsFocused ? 1 : 0)
                 )
             }
             
@@ -46,7 +46,7 @@ struct TaskDetailCard: View {
                 .glassEffect(in: RoundedRectangle(cornerRadius: 8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.accentColor.opacity(0.3), lineWidth: 1)
+                        .stroke(Color.accentColor.opacity(0.3), lineWidth: titleFocused || detailsFocused ? 1 : 0)
                 )
                 .tint(.primary)
                 .focused($detailsFocused)

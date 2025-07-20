@@ -135,6 +135,10 @@ struct ContentView: View {
             wantTaskOffset += 1
             return .handled
         }
+        .onKeyPress(.escape) {
+            focused = true
+            return .handled
+        }
     }
     
     private func getTaskList() -> [TaskItem] {
