@@ -4,6 +4,7 @@ import AppKit
 
 extension Notification.Name {
     static let editTask = Notification.Name("editTask")
+    static let findTask = Notification.Name("findTask")
     static let newTask = Notification.Name("newTask")
     static let releaseFocus = Notification.Name("releaseFocus")
 }
@@ -77,11 +78,6 @@ struct TaskApp: App {
                 }
                 .keyboardShortcut("l", modifiers: .command)
                 
-                Button("Find") {
-                    selectedMode = .find
-                }
-                .keyboardShortcut("f", modifiers: .command)
-                
                 Button("One") {
                     selectedMode = .focus
                 }
@@ -97,6 +93,11 @@ struct TaskApp: App {
                     NotificationCenter.default.post(name: .editTask, object: nil)
                 }
                 .keyboardShortcut("e", modifiers: .command)
+                
+                Button("Find") {
+                    NotificationCenter.default.post(name: .findTask, object: nil)
+                }
+                .keyboardShortcut("f", modifiers: .command)
                 
                 Divider()
                 

@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var wantTaskOffset = 0
     @State private var editing = false
     @FocusState private var focused: Bool
+    @FocusState private var searchFocused: Bool
     
     var sortedTasks: [TaskItem] {
         TaskSorter.sortTasks(tasks, using: comparisons)
@@ -36,6 +37,42 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                
+                    TextField("", text: $searchText)
+                        .textFieldStyle(.plain)
+                        .focused($searchFocused)
+                        .onSubmit {
+                            if !filteredTasks.isEmpty {
+                                selectedTask = filteredTasks.first
+                            }
+                        }
+                
+                    if !searchText.isEmpty {
+                        Button(action: {
+                            searchText = ""
+                            searchFocused = true
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                        }
+                        .buttonStyle(BorderlessButtonStyle())
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.accentColor.opacity(0.3), lineWidth: searchFocused ? 1 : 0)
+                )
+                .glassEffect(in: RoundedRectangle(cornerRadius: 20))
+                .frame(maxWidth: 300)
+                
+                Spacer()
+                
+                // Mode switcher on the right
                 ModeSwitcher(selectedMode: $selectedMode)
             }
             .padding(.horizontal)
@@ -48,14 +85,7 @@ struct ContentView: View {
                 case .list:
                     ListModeView(
                         selectedTask: $selectedTask,
-                        sortedTasks: sortedTasks,
-                        editing: $editing
-                    )
-                case .find:
-                    FindModeView(
-                        selectedTask: $selectedTask,
-                        searchText: $searchText,
-                        filteredTasks: filteredTasks,
+                        sortedTasks: searchText.isEmpty ? sortedTasks : filteredTasks,
                         editing: $editing
                     )
                 case .addTask:
@@ -108,28 +138,28 @@ struct ContentView: View {
             wantTaskOffset = 0
         }
         .onKeyPress(.upArrow) {
-            if editing {
+            if editing || searchFocused {
                 return .ignored
             }
             wantTaskOffset -= 1
             return .handled
         }
         .onKeyPress(.downArrow) {
-            if editing {
+            if editing || searchFocused {
                 return .ignored
             }
             wantTaskOffset += 1
             return .handled
         }
         .onKeyPress(.leftArrow) {
-            if editing {
+            if editing || searchFocused {
                 return .ignored
             }
             wantTaskOffset -= 1
             return .handled
         }
         .onKeyPress(.rightArrow) {
-            if editing {
+            if editing || searchFocused {
                 return .ignored
             }
             wantTaskOffset += 1
@@ -142,14 +172,16 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .releaseFocus)) { _ in
             focused = true
         }
+        .onReceive(NotificationCenter.default.publisher(for: .findTask)) { _ in
+            searchText = ""
+            searchFocused = true
+        }
     }
     
     private func getTaskList() -> [TaskItem] {
         switch selectedMode {
         case .list:
-            return sortedTasks
-        case .find:
-            return filteredTasks
+            return searchText.isEmpty ? sortedTasks : filteredTasks
         case .focus:
             return incompleteTasks
         default:

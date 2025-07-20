@@ -226,7 +226,7 @@ struct TaskComparisonView: View {
                         .foregroundColor(.white)
                         .frame(width: 100)
                         .padding(.vertical, 8)
-                        .background(.purple.opacity(0.8))
+                        .background(Color.accentColor.opacity(0.8))
                         .cornerRadius(6)
                 }
                 .buttonStyle(PlainButtonStyle())
