@@ -7,6 +7,8 @@ extension Notification.Name {
     static let findTask = Notification.Name("findTask")
     static let newTask = Notification.Name("newTask")
     static let releaseFocus = Notification.Name("releaseFocus")
+    static let selectPrevious = Notification.Name("selectPrevious")
+    static let selectNext = Notification.Name("selectNext")
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {

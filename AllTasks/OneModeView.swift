@@ -4,7 +4,6 @@ import SwiftData
 struct OneModeView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var selectedTask: TaskItem?
-    @Binding var wantTaskOffset: Int
     @Binding var editing: Bool
     
     var body: some View {
@@ -18,7 +17,7 @@ struct OneModeView: View {
                     
                     VStack(spacing: 20) {
                         Button(action: {
-                            wantTaskOffset -= 1
+                            NotificationCenter.default.post(name: .selectPrevious, object: nil)
                         }) {
                             Image(systemName: "chevron.up")
                                 .font(.title)
@@ -28,7 +27,7 @@ struct OneModeView: View {
                         .glassEffect(in: Circle())
                         
                         Button(action: {
-                            wantTaskOffset += 1
+                            NotificationCenter.default.post(name: .selectNext, object: nil)
                         }) {
                             Image(systemName: "chevron.down")
                                 .font(.title)

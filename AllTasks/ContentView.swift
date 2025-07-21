@@ -8,7 +8,6 @@ struct ContentView: View {
     @Binding var selectedMode: ViewMode
     @Binding var selectedTask: TaskItem?
     @State private var searchText = ""
-    @State private var wantTaskOffset = 0
     @State private var editing = false
     @State private var taskFilter: TaskFilter = .incomplete
     @FocusState private var focused: Bool
@@ -70,7 +69,6 @@ struct ContentView: View {
                 case .focus:
                     OneModeView(
                         selectedTask: $selectedTask,
-                        wantTaskOffset: $wantTaskOffset,
                         editing: $editing
                     )
                 case .prioritize:
@@ -97,33 +95,22 @@ struct ContentView: View {
                 selectedTask = taskList.first
             }
         }
-        .onChange(of: wantTaskOffset) { _, _ in
-            let taskList = getTaskList()
-            guard !taskList.isEmpty else { return }
-            
-            if let currentTask = selectedTask,
-               let currentIndex = taskList.firstIndex(where: { $0.id == currentTask.id }) {
-                let newIndex = (currentIndex + wantTaskOffset) % taskList.count
-                let wrappedIndex = newIndex < 0 ? newIndex + taskList.count : newIndex
-                selectedTask = taskList[wrappedIndex]
-            } else {
-                selectedTask = taskList.first
-            }
-            
-            wantTaskOffset = 0
-        }
         .onKeyPress(.upArrow) {
             if editing || searchFocused {
                 return .ignored
             }
-            wantTaskOffset -= 1
+            
+            selectPreviousTask()
+            
             return .handled
         }
         .onKeyPress(.downArrow) {
             if editing || searchFocused {
                 return .ignored
             }
-            wantTaskOffset += 1
+            
+            selectNextTask()
+            
             return .handled
         }
         .onKeyPress(.escape) {
@@ -136,6 +123,12 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .findTask)) { _ in
             searchText = ""
             searchFocused = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .selectPrevious)) { _ in
+            selectPreviousTask()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .selectNext)) { _ in
+            selectNextTask()
         }
     }
     
@@ -150,4 +143,31 @@ struct ContentView: View {
         }
     }
     
+    private func selectPreviousTask() {
+        let taskList = getTaskList()
+        guard !taskList.isEmpty else { return }
+        
+        if let currentTask = selectedTask,
+           let currentIndex = taskList.firstIndex(where: { $0.id == currentTask.id }) {
+            let newIndex = (currentIndex - 1) % taskList.count
+            let wrappedIndex = newIndex < 0 ? newIndex + taskList.count : newIndex
+            selectedTask = taskList[wrappedIndex]
+        } else {
+            selectedTask = taskList.first
+        }
+    }
+    
+    private func selectNextTask() {
+        let taskList = getTaskList()
+        guard !taskList.isEmpty else { return }
+        
+        if let currentTask = selectedTask,
+           let currentIndex = taskList.firstIndex(where: { $0.id == currentTask.id }) {
+            let newIndex = (currentIndex + 1) % taskList.count
+            let wrappedIndex = newIndex < 0 ? newIndex + taskList.count : newIndex
+            selectedTask = taskList[wrappedIndex]
+        } else {
+            selectedTask = taskList.first
+        }
+    }
 }
