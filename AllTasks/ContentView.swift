@@ -126,20 +126,6 @@ struct ContentView: View {
             wantTaskOffset += 1
             return .handled
         }
-        .onKeyPress(.leftArrow) {
-            if editing || searchFocused {
-                return .ignored
-            }
-            wantTaskOffset -= 1
-            return .handled
-        }
-        .onKeyPress(.rightArrow) {
-            if editing || searchFocused {
-                return .ignored
-            }
-            wantTaskOffset += 1
-            return .handled
-        }
         .onKeyPress(.escape) {
             focused = true
             return .handled

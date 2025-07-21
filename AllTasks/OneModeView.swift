@@ -10,37 +10,35 @@ struct OneModeView: View {
     var body: some View {
         VStack {
             if let task = selectedTask {
-                VStack(spacing: 30) {
-                    HStack(alignment: .center, spacing: 20) {
+                HStack(spacing: 20) {
+                    TaskDetailCard(task: task, editing: $editing)
+                        .frame(maxWidth: 600)
+                        .padding()
+                        .glassEffect(in: RoundedRectangle(cornerRadius: 12))
+                    
+                    VStack(spacing: 20) {
                         Button(action: {
                             wantTaskOffset -= 1
                         }) {
-                            Image(systemName: "chevron.left")
+                            Image(systemName: "chevron.up")
                                 .font(.title)
                                 .frame(width: 44, height: 44)
                         }
                         .buttonStyle(PlainButtonStyle())
                         .glassEffect(in: Circle())
                         
-                        TaskDetailCard(task: task, editing: $editing)
-                            .frame(maxWidth: 600)
-                            .padding()
-                            .glassEffect(in: RoundedRectangle(cornerRadius: 12))
-                        
                         Button(action: {
                             wantTaskOffset += 1
                         }) {
-                            Image(systemName: "chevron.right")
+                            Image(systemName: "chevron.down")
                                 .font(.title)
                                 .frame(width: 44, height: 44)
                         }
                         .buttonStyle(PlainButtonStyle())
                         .glassEffect(in: Circle())
                     }
-                    .padding(.horizontal, 40)
-                    
-                    Spacer()
                 }
+                .frame(maxWidth: .infinity)
                 .padding(.vertical, 40)
             } else {
                 VStack(spacing: 20) {
