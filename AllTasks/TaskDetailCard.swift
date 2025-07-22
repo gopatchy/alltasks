@@ -16,10 +16,10 @@ struct TaskDetailCard: View {
             HStack {
                 HStack {
                     Button(action: {
-                        task.isCompleted.toggle()
+                        task.complete.toggle()
                     }) {
-                        Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                            .foregroundColor(task.isCompleted ? .purple : .gray)
+                        Image(systemName: task.complete ? "checkmark.circle.fill" : "circle")
+                            .foregroundColor(task.complete ? .purple : .gray)
                             .font(.title2)
                     }
                     .buttonStyle(BorderlessButtonStyle())

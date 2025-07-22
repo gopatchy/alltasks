@@ -3,10 +3,8 @@ import SwiftUI
 struct TopBar: View {
     @Binding var taskFilter: TaskFilter
     @Binding var searchText: String
-    @FocusState.Binding var isSearchFieldFocused: Bool
+    @FocusState.Binding var searchFocused: Bool
     @Binding var selectedMode: ViewMode
-    var filteredTasks: [TaskItem]
-    @Binding var selectedTask: TaskItem?
     
     var body: some View {
         HStack {
@@ -14,12 +12,7 @@ struct TopBar: View {
             
             SearchBar(
                 searchText: $searchText,
-                isSearchFieldFocused: $isSearchFieldFocused,
-                onSubmit: {
-                    if !filteredTasks.isEmpty {
-                        selectedTask = filteredTasks.first
-                    }
-                }
+                searchFocused: $searchFocused
             )
             
             Spacer()

@@ -2,8 +2,7 @@ import SwiftUI
 
 struct SearchBar: View {
     @Binding var searchText: String
-    @FocusState.Binding var isSearchFieldFocused: Bool
-    var onSubmit: () -> Void
+    @FocusState.Binding var searchFocused: Bool
     
     var body: some View {
         HStack {
@@ -12,13 +11,12 @@ struct SearchBar: View {
         
             TextField("", text: $searchText)
                 .textFieldStyle(.plain)
-                .focused($isSearchFieldFocused)
-                .onSubmit(onSubmit)
+                .focused($searchFocused)
         
             if !searchText.isEmpty {
                 Button(action: {
                     searchText = ""
-                    isSearchFieldFocused = true
+                    searchFocused = true
                 }) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(.secondary)
@@ -30,7 +28,7 @@ struct SearchBar: View {
         .padding(.vertical, 6)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.accentColor.opacity(0.3), lineWidth: isSearchFieldFocused ? 1 : 0)
+                .stroke(Color.accentColor.opacity(0.3), lineWidth: searchFocused ? 1 : 0)
         )
         .glassEffect(in: RoundedRectangle(cornerRadius: 20))
         .frame(maxWidth: 300)

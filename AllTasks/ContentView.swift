@@ -12,44 +12,14 @@ struct ContentView: View {
     @State private var taskFilter: TaskFilter = .incomplete
     @FocusState private var focused: Bool
     @FocusState private var searchFocused: Bool
-    
-    var sortedTasks: [TaskItem] {
-        let sorted = TaskSorter.sortTasks(tasks, using: comparisons)
-        switch taskFilter {
-        case .incomplete:
-            return sorted.filter { !$0.isCompleted }
-        case .all:
-            return sorted
-        case .complete:
-            return sorted.filter { $0.isCompleted }
-        }
-    }
-    
-    var incompleteTasks: [TaskItem] {
-        return sortedTasks.filter { !$0.isCompleted }
-    }
-    
-    var filteredTasks: [TaskItem] {
-        let sorted = sortedTasks
-        if searchText.isEmpty {
-            return sorted
-        } else {
-            return sorted.filter { task in
-                task.title.localizedCaseInsensitiveContains(searchText) ||
-                task.details.localizedCaseInsensitiveContains(searchText)
-            }
-        }
-    }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             TopBar(
                 taskFilter: $taskFilter,
                 searchText: $searchText,
-                isSearchFieldFocused: $searchFocused,
-                selectedMode: $selectedMode,
-                filteredTasks: filteredTasks,
-                selectedTask: $selectedTask
+                searchFocused: $searchFocused,
+                selectedMode: $selectedMode
             )
             
             Divider()
@@ -59,7 +29,7 @@ struct ContentView: View {
                 case .list:
                     ListModeView(
                         selectedTask: $selectedTask,
-                        sortedTasks: searchText.isEmpty ? sortedTasks : filteredTasks,
+                        sortedTasks: getTaskList(),
                         editing: $editing
                     )
                 case .addTask:
@@ -83,7 +53,7 @@ struct ContentView: View {
         .focusEffectDisabled()
         .onAppear {
             focused = true
-            selectedTask = sortedTasks.first
+            selectedTask = getTaskList().first
         }
         .onChange(of: selectedMode) { _, newMode in
             focused = true
@@ -133,14 +103,17 @@ struct ContentView: View {
     }
     
     private func getTaskList() -> [TaskItem] {
-        switch selectedMode {
-        case .list:
-            return searchText.isEmpty ? sortedTasks : filteredTasks
-        case .focus:
-            return incompleteTasks
-        default:
-            return []
-        }
+        return tasks
+            .filter { task in
+                searchText == "" ||
+                task.title.localizedCaseInsensitiveContains(searchText) ||
+                task.details.localizedCaseInsensitiveContains(searchText)
+            }
+            .filter { task in
+                taskFilter == .all ||
+                (taskFilter == .incomplete && !task.complete) ||
+                (taskFilter == .complete && task.complete)
+            }
     }
     
     private func selectPreviousTask() {

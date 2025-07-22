@@ -12,7 +12,7 @@ struct PrioritizeModeView: View {
     @Binding var editing: Bool
     
     var incompleteTasks: [TaskItem] {
-        tasks.filter { !$0.isCompleted }
+        tasks.filter { !$0.complete }
     }
     
     struct SortingState {

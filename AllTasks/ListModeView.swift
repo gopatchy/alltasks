@@ -16,17 +16,17 @@ struct ListModeView: View {
                             ForEach(sortedTasks) { task in
                                 HStack {
                                     Button(action: {
-                                        task.isCompleted.toggle()
+                                        task.complete.toggle()
                                     }) {
-                                        Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                                            .foregroundColor(task.isCompleted ? .purple : .gray)
+                                        Image(systemName: task.complete ? "checkmark.circle.fill" : "circle")
+                                            .foregroundColor(task.complete ? .purple : .gray)
                                             .font(.title3)
                                     }
                                     .buttonStyle(BorderlessButtonStyle())
                                     
                                     Text(task.title)
-                                        .strikethrough(task.isCompleted)
-                                        .foregroundColor(task.isCompleted ? .gray : .primary)
+                                        .strikethrough(task.complete)
+                                        .foregroundColor(task.complete ? .gray : .primary)
                                     
                                     Spacer()
                                 }
