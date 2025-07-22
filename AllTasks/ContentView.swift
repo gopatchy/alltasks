@@ -47,6 +47,9 @@ struct ContentView: View {
                     )
                 }
             }
+            // Allow focus to leave search bar
+            .focusable()
+            .focusEffectDisabled()
         }
         .focusable()
         .focused($focused)

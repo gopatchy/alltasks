@@ -67,6 +67,8 @@ struct ListModeView: View {
                         proxy.scrollTo(task.id, anchor: .center)
                     }
                 }
+                .focusable()
+                .focusEffectDisabled()
             }
             
             VStack {
