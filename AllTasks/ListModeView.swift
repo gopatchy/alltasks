@@ -3,8 +3,8 @@ import SwiftData
 
 struct ListModeView: View {
     @Environment(\.modelContext) private var modelContext
+    @Binding var tasks: [TaskItem]
     @Binding var selectedTask: TaskItem?
-    let sortedTasks: [TaskItem]
     @Binding var editing: Bool
     
     var body: some View {
@@ -13,7 +13,7 @@ struct ListModeView: View {
                 VStack(spacing: 0) {
                     ScrollView {
                         VStack(spacing: 8) {
-                            ForEach(sortedTasks) { task in
+                            ForEach(tasks) { task in
                                 HStack {
                                     Button(action: {
                                         task.complete.toggle()
@@ -59,8 +59,8 @@ struct ListModeView: View {
                 .frame(minWidth: 250)
                 .onAppear {
                     // Select first task if none selected
-                    if selectedTask == nil && !sortedTasks.isEmpty {
-                        selectedTask = sortedTasks.first
+                    if selectedTask == nil && !tasks.isEmpty {
+                        selectedTask = tasks.first
                     }
                     // Scroll to selected task when view appears
                     if let task = selectedTask {

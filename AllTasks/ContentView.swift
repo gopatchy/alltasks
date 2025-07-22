@@ -3,13 +3,14 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var tasks: [TaskItem]
+    @Query private var taskItems: [TaskItem]
     @Query private var comparisons: [Comparison]
     @Binding var selectedMode: ViewMode
     @Binding var selectedTask: TaskItem?
     @Binding var taskFilter: TaskFilter
     @State private var searchText = ""
     @State private var editing = false
+    @State private var tasks: [TaskItem] = []
     @FocusState private var focused: Bool
     @FocusState private var searchFocused: Bool
 
@@ -28,12 +29,13 @@ struct ContentView: View {
                 switch selectedMode {
                 case .list:
                     ListModeView(
+                        tasks: $tasks,
                         selectedTask: $selectedTask,
-                        sortedTasks: getTaskList(),
                         editing: $editing
                     )
                 case .addTask:
                     NewModeView(
+                        tasks: $tasks,
                         editing: $editing
                     )
                 case .focus:
@@ -56,16 +58,19 @@ struct ContentView: View {
         .focusEffectDisabled()
         .onAppear {
             focused = true
-            selectedTask = getTaskList().first
+            updateTasks()
+            selectedTask = tasks.first
         }
         .onChange(of: selectedMode) { _, newMode in
             focused = true
             editing = false
         }
+        .onChange(of: taskItems) { _, _ in
+            updateTasks()
+        }
         .onChange(of: selectedTask) { _, newTask in
             if newTask == nil {
-                let taskList = getTaskList()
-                selectedTask = taskList.first
+                selectedTask = tasks.first
             }
         }
         .onKeyPress(.upArrow) {
@@ -105,45 +110,58 @@ struct ContentView: View {
         }
     }
     
-    private func getTaskList() -> [TaskItem] {
-        return tasks
-            .filter { task in
-                searchText == "" ||
-                task.title.localizedCaseInsensitiveContains(searchText) ||
-                task.details.localizedCaseInsensitiveContains(searchText)
+    private func updateTasks() {
+        var taskMap: [UUID : TaskItem] = [:]
+        var iter: TaskItem?
+        
+        for task in taskItems {
+            taskMap[task.id] = task
+
+            if task.previousID == nil {
+                if let iter2 = iter {
+                    print("multiple first tasks: \(iter2) vs \(task)")
+                }
+                
+                iter = task
             }
-            .filter { task in
-                taskFilter == .all ||
-                (taskFilter == .incomplete && !task.complete) ||
-                (taskFilter == .complete && task.complete)
+        }
+
+        tasks.removeAll()
+        
+        while let iter2 = iter {
+            tasks.append(iter2)
+            
+            if let nextID = iter2.nextID {
+                iter = taskMap[nextID]
+            } else {
+                iter = nil
             }
+        }
     }
     
     private func selectPreviousTask() {
-        let taskList = getTaskList()
-        guard !taskList.isEmpty else { return }
+        guard !tasks.isEmpty else { return }
         
         if let currentTask = selectedTask,
-           let currentIndex = taskList.firstIndex(where: { $0.id == currentTask.id }) {
-            let newIndex = (currentIndex - 1) % taskList.count
-            let wrappedIndex = newIndex < 0 ? newIndex + taskList.count : newIndex
-            selectedTask = taskList[wrappedIndex]
+           let currentIndex = tasks.firstIndex(where: { $0.id == currentTask.id }) {
+            let newIndex = (currentIndex - 1) % tasks.count
+            let wrappedIndex = newIndex < 0 ? newIndex + tasks.count : newIndex
+            selectedTask = tasks[wrappedIndex]
         } else {
-            selectedTask = taskList.first
+            selectedTask = tasks.first
         }
     }
     
     private func selectNextTask() {
-        let taskList = getTaskList()
-        guard !taskList.isEmpty else { return }
+        guard !tasks.isEmpty else { return }
         
         if let currentTask = selectedTask,
-           let currentIndex = taskList.firstIndex(where: { $0.id == currentTask.id }) {
-            let newIndex = (currentIndex + 1) % taskList.count
-            let wrappedIndex = newIndex < 0 ? newIndex + taskList.count : newIndex
-            selectedTask = taskList[wrappedIndex]
+           let currentIndex = tasks.firstIndex(where: { $0.id == currentTask.id }) {
+            let newIndex = (currentIndex + 1) % tasks.count
+            let wrappedIndex = newIndex < 0 ? newIndex + tasks.count : newIndex
+            selectedTask = tasks[wrappedIndex]
         } else {
-            selectedTask = taskList.first
+            selectedTask = tasks.first
         }
     }
 }
