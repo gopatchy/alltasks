@@ -7,9 +7,9 @@ struct ContentView: View {
     @Query private var comparisons: [Comparison]
     @Binding var selectedMode: ViewMode
     @Binding var selectedTask: TaskItem?
+    @Binding var taskFilter: TaskFilter
     @State private var searchText = ""
     @State private var editing = false
-    @State private var taskFilter: TaskFilter = .incomplete
     @FocusState private var focused: Bool
     @FocusState private var searchFocused: Bool
 

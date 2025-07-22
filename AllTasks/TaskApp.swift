@@ -22,6 +22,7 @@ struct TaskApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var selectedTask: TaskItem? = nil
     @State private var selectedMode: ViewMode = .addTask
+    @State private var taskFilter: TaskFilter = .incomplete
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -41,7 +42,8 @@ struct TaskApp: App {
         WindowGroup {
             ContentView(
                 selectedMode: $selectedMode,
-                selectedTask: $selectedTask
+                selectedTask: $selectedTask,
+                taskFilter: $taskFilter
             )
                 .frame(minWidth: 800, minHeight: 600)
                 .accentColor(.purple)
@@ -89,6 +91,33 @@ struct TaskApp: App {
                     selectedMode = .prioritize
                 }
                 .keyboardShortcut("p", modifiers: .command)
+            }
+            CommandMenu("Filter") {
+                Button("Incomplete") {
+                    taskFilter = .incomplete
+                }
+                
+                Button("All") {
+                    taskFilter = .all
+                }
+                
+                Button("Complete") {
+                    taskFilter = .complete
+                }
+                
+                Divider()
+                
+                Button("Cycle") {
+                    switch taskFilter {
+                    case .incomplete:
+                        taskFilter = .all
+                    case .all:
+                        taskFilter = .complete
+                    case .complete:
+                        taskFilter = .incomplete
+                    }
+                }
+                .keyboardShortcut("i", modifiers: .command)
             }
             CommandMenu("Task") {
                 Button("Edit") {
