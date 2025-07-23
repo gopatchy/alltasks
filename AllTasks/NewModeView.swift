@@ -3,8 +3,8 @@ import SwiftData
 
 struct NewModeView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var currentTask: TaskItem = TaskItem(title: "")
-    @State private var isTaskInserted: Bool = false
+    @State private var taskNew: TaskItem = TaskItem(title: "")
+    @State private var taskInserted: Bool = false
     @State private var taskId: UUID = UUID()
     @Binding var tasksSorted: TasksSorted
     @Binding var editing: Bool
@@ -12,7 +12,7 @@ struct NewModeView: View {
     var body: some View {
         VStack {
             TaskDetailCard(
-                task: currentTask,
+                task: taskNew,
                 editing: $editing,
                 focusTitleOnAppear: true
             )
@@ -24,30 +24,30 @@ struct NewModeView: View {
         .onAppear {
             taskId = UUID()
         }
-        .onChange(of: currentTask.title) { oldValue, newValue in
-            if !isTaskInserted && !newValue.isEmpty {
+        .onChange(of: taskNew.title) { oldValue, newValue in
+            if !taskInserted && !newValue.isEmpty {
                 try! modelContext.transaction {
                     if let firstTask = tasksSorted.first {
-                        currentTask.nextID = firstTask.id
-                        firstTask.prevID = currentTask.id
+                        taskNew.nextID = firstTask.id
+                        firstTask.prevID = taskNew.id
                     }
-                    modelContext.insert(currentTask)
-                    isTaskInserted = true
+                    modelContext.insert(taskNew)
+                    taskInserted = true
                 }
-            } else if isTaskInserted && !newValue.isEmpty {
+            } else if taskInserted && !newValue.isEmpty {
                 try? modelContext.save()
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .newTask)) { _ in
-            if isTaskInserted {
+            if taskInserted {
                 createNewTask()
             }
         }
     }
     
     private func createNewTask() {
-        currentTask = TaskItem(title: "")
-        isTaskInserted = false
+        taskNew = TaskItem(title: "")
+        taskInserted = false
         taskId = UUID()
     }
 }

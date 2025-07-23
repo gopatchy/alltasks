@@ -41,9 +41,9 @@ struct TaskApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(
-                selectedMode: $selectedMode,
-                selectedTask: $selectedTask,
-                taskFilter: $taskFilter
+                modeSelected: $selectedMode,
+                taskFilter: $taskFilter,
+                taskSelected: $selectedTask,
             )
                 .frame(minWidth: 800, minHeight: 600)
                 .accentColor(.purple)

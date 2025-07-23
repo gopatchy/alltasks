@@ -3,12 +3,12 @@ import SwiftData
 
 struct OneModeView: View {
     @Environment(\.modelContext) private var modelContext
-    @Binding var selectedTask: TaskItem?
+    @Binding var taskSelected: TaskItem?
     @Binding var editing: Bool
     
     var body: some View {
         VStack {
-            if let task = selectedTask {
+            if let task = taskSelected {
                 HStack(spacing: 20) {
                     TaskDetailCard(task: task, editing: $editing)
                         .frame(maxWidth: 600)

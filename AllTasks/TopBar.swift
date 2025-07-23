@@ -4,7 +4,7 @@ struct TopBar: View {
     @Binding var taskFilter: TaskFilter
     @Binding var searchText: String
     @FocusState.Binding var searchFocused: Bool
-    @Binding var selectedMode: ViewMode
+    @Binding var modeSelected: ViewMode
     
     var body: some View {
         HStack {
@@ -17,7 +17,7 @@ struct TopBar: View {
             
             Spacer()
             
-            ViewModePicker(selectedMode: $selectedMode)
+            ViewModePicker(modeSelected: $modeSelected)
         }
         .padding(.horizontal)
         .padding(.vertical, 8)

@@ -4,7 +4,7 @@ import SwiftData
 struct ListModeView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var tasksFiltered: TasksFiltered
-    @Binding var selectedTask: TaskItem?
+    @Binding var taskSelected: TaskItem?
     @Binding var editing: Bool
     
     var body: some View {
@@ -35,14 +35,14 @@ struct ListModeView: View {
                                 .contentShape(Rectangle())
                                 .background(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .fill(selectedTask?.id == task.id ? Color.accentColor.opacity(0.2) : Color(NSColor.controlBackgroundColor))
+                                        .fill(taskSelected?.id == task.id ? Color.accentColor.opacity(0.2) : Color(NSColor.controlBackgroundColor))
                                 )
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .stroke(selectedTask?.id == task.id ? Color.accentColor.opacity(0.3) : Color.clear, lineWidth: 1)
+                                        .stroke(taskSelected?.id == task.id ? Color.accentColor.opacity(0.3) : Color.clear, lineWidth: 1)
                                 )
                                 .onTapGesture {
-                                    selectedTask = task
+                                    taskSelected = task
                                 }
                                 .id(task.id)
                             }
@@ -51,7 +51,7 @@ struct ListModeView: View {
                         .padding(.vertical, 8)
                     }
                 }
-                .onChange(of: selectedTask) { _, newTask in
+                .onChange(of: taskSelected) { _, newTask in
                     if let task = newTask {
                         proxy.scrollTo(task.id, anchor: .center)
                     }
@@ -59,11 +59,11 @@ struct ListModeView: View {
                 .frame(minWidth: 250)
                 .onAppear {
                     // Select first task if none selected
-                    if selectedTask == nil {
-                        selectedTask = tasksFiltered.first
+                    if taskSelected == nil {
+                        taskSelected = tasksFiltered.first
                     }
                     // Scroll to selected task when view appears
-                    if let task = selectedTask {
+                    if let task = taskSelected {
                         proxy.scrollTo(task.id, anchor: .center)
                     }
                 }
@@ -72,7 +72,7 @@ struct ListModeView: View {
             }
             
             VStack {
-                if let task = selectedTask {
+                if let task = taskSelected {
                     TaskDetailCard(
                         task: task,
                         editing: $editing

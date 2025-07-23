@@ -3,17 +3,21 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    
+    @Query private var comparisons: [Comparison] // TODO: Remove
+    @Binding var modeSelected: ViewMode
+    
     @Query private var tasks: [TaskItem]
-    @Query private var comparisons: [Comparison]
-    @Binding var selectedMode: ViewMode
-    @Binding var selectedTask: TaskItem?
-    @Binding var taskFilter: TaskFilter
-    @State private var searchText = ""
-    @State private var editing = false
     @State private var tasksSorted = TasksSorted()
     @State private var tasksFiltered = TasksFiltered()
-    @FocusState private var focused: Bool
+    @Binding var taskFilter: TaskFilter
+    @Binding var taskSelected: TaskItem?
+
+    @State private var searchText = ""
     @FocusState private var searchFocused: Bool
+    
+    @State private var editing = false
+    @FocusState private var focused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,17 +25,17 @@ struct ContentView: View {
                 taskFilter: $taskFilter,
                 searchText: $searchText,
                 searchFocused: $searchFocused,
-                selectedMode: $selectedMode
+                modeSelected: $modeSelected
             )
             
             Divider()
             
             Group {
-                switch selectedMode {
+                switch modeSelected {
                 case .list:
                     ListModeView(
                         tasksFiltered: $tasksFiltered,
-                        selectedTask: $selectedTask,
+                        taskSelected: $taskSelected,
                         editing: $editing
                     )
                 case .addTask:
@@ -41,7 +45,7 @@ struct ContentView: View {
                     )
                 case .focus:
                     OneModeView(
-                        selectedTask: $selectedTask,
+                        taskSelected: $taskSelected,
                         editing: $editing
                     )
                 case .prioritize:
@@ -60,7 +64,7 @@ struct ContentView: View {
             focused = true
             updateTasksSorted()
         }
-        .onChange(of: selectedMode) { _, newMode in
+        .onChange(of: modeSelected) { _, newMode in
             focused = true
             editing = false
         }
@@ -77,10 +81,10 @@ struct ContentView: View {
             updateTasksFiltered()
         }
         .onChange(of: tasksFiltered) { _, _ in
-            if let task = tasksFiltered.first(where: { $0.id == selectedTask?.id }) {
-                selectedTask = task
+            if let task = tasksFiltered.first(where: { $0.id == taskSelected?.id }) {
+                taskSelected = task
             } else {
-                selectedTask = tasksFiltered.first
+                taskSelected = tasksFiltered.first
             }
         }
         .onKeyPress(.upArrow) {
@@ -129,18 +133,18 @@ struct ContentView: View {
     }
     
     private func selectPreviousTask() {
-        if let prevTask = selectedTask?.prevTask {
-            selectedTask = prevTask
+        if let prevTask = taskSelected?.prevTask {
+            taskSelected = prevTask
         } else {
-            selectedTask = tasksFiltered.last
+            taskSelected = tasksFiltered.last
         }
     }
     
     private func selectNextTask() {
-        if let nextTask = selectedTask?.nextTask {
-            selectedTask = nextTask
+        if let nextTask = taskSelected?.nextTask {
+            taskSelected = nextTask
         } else {
-            selectedTask = tasksFiltered.first
+            taskSelected = tasksFiltered.first
         }
     }
 }
