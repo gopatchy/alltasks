@@ -70,6 +70,19 @@ struct ContentView: View {
         .onChange(of: tasksSorted) { _, _ in
             updateTasksFiltered()
         }
+        .onChange(of: taskFilter) { _, _ in
+            updateTasksFiltered()
+        }
+        .onChange(of: searchText) { _, _ in
+            updateTasksFiltered()
+        }
+        .onChange(of: tasksFiltered) { _, _ in
+            if let task = tasksFiltered.first(where: { $0.id == selectedTask?.id }) {
+                selectedTask = task
+            } else {
+                selectedTask = tasksFiltered.first
+            }
+        }
         .onKeyPress(.upArrow) {
             if editing || searchFocused {
                 return .ignored

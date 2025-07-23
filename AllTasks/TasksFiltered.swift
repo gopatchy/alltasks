@@ -7,9 +7,20 @@ extension TasksFiltered {
         self.init()
         
         for task in tasksSorted {
-            if task.matches(taskFilter: taskFilter, searchText: searchText) {
-                self.append(task)
+            guard task.matches(taskFilter: taskFilter, searchText: searchText) else {
+                continue
             }
+            
+            task.nextTask = nil
+        
+            if self.last == nil {
+                task.prevTask = nil
+            } else {
+                task.prevTask = self.last
+                self.last!.nextTask = task
+            }
+            
+            self.append(task)
         }
     }
 }
