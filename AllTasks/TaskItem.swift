@@ -8,20 +8,23 @@ final class TaskItem: Codable {
     var details: String = ""
     var complete: Bool = false
     var created: Date = Date()
-    var previousID: UUID?
+    var prevID: UUID?
     var nextID: UUID?
+    
+    @Transient var prevTask: TaskItem?
+    @Transient var nextTask: TaskItem?
     
     init(title: String, details: String = "", complete: Bool = false, previousID: UUID? = nil, nextID: UUID? = nil) {
         self.title = title
         self.details = details
         self.complete = complete
         self.created = Date()
-        self.previousID = previousID
+        self.prevID = previousID
         self.nextID = nextID
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, title, details, complete, created, previousID, nextID
+        case id, title, details, complete, created, prevID, nextID
     }
     
     required init(from decoder: Decoder) throws {
@@ -31,7 +34,7 @@ final class TaskItem: Codable {
         details = try container.decode(String.self, forKey: .details)
         complete = try container.decode(Bool.self, forKey: .complete)
         created = try container.decode(Date.self, forKey: .created)
-        previousID = try container.decode(UUID.self, forKey: .previousID)
+        prevID = try container.decode(UUID.self, forKey: .prevID)
         nextID = try container.decode(UUID.self, forKey: .nextID)
     }
     
@@ -42,7 +45,26 @@ final class TaskItem: Codable {
         try container.encode(details, forKey: .details)
         try container.encode(complete, forKey: .complete)
         try container.encode(created, forKey: .created)
-        try container.encode(previousID, forKey: .previousID)
+        try container.encode(prevID, forKey: .prevID)
         try container.encode(nextID, forKey: .nextID)
+    }
+    
+    func matches(taskFilter: TaskFilter, searchText: String) -> Bool {
+        switch taskFilter {
+        case .incomplete:
+            if complete { return false }
+        case .complete:
+            if !complete { return false }
+        case .all:
+            break
+        }
+        
+        if !searchText.isEmpty &&
+            !title.localizedCaseInsensitiveContains(searchText) &&
+            !details.localizedCaseInsensitiveContains(searchText) {
+            return false
+        }
+        
+        return true
     }
 }

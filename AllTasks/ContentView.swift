@@ -3,14 +3,15 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var taskItems: [TaskItem]
+    @Query private var tasks: [TaskItem]
     @Query private var comparisons: [Comparison]
     @Binding var selectedMode: ViewMode
     @Binding var selectedTask: TaskItem?
     @Binding var taskFilter: TaskFilter
     @State private var searchText = ""
     @State private var editing = false
-    @State private var tasks = Tasks()
+    @State private var tasksSorted = TasksSorted()
+    @State private var tasksFiltered = TasksFiltered()
     @FocusState private var focused: Bool
     @FocusState private var searchFocused: Bool
 
@@ -29,13 +30,13 @@ struct ContentView: View {
                 switch selectedMode {
                 case .list:
                     ListModeView(
-                        tasks: .constant(tasks.filter(by: taskFilter, searchText: searchText)),
+                        tasksFiltered: $tasksFiltered,
                         selectedTask: $selectedTask,
                         editing: $editing
                     )
                 case .addTask:
                     NewModeView(
-                        tasks: .constant(tasks.tasks),
+                        tasksSorted: $tasksSorted,
                         editing: $editing
                     )
                 case .focus:
@@ -49,7 +50,6 @@ struct ContentView: View {
                     )
                 }
             }
-            // Allow focus to leave search bar
             .focusable()
             .focusEffectDisabled()
         }
@@ -58,20 +58,17 @@ struct ContentView: View {
         .focusEffectDisabled()
         .onAppear {
             focused = true
-            tasks.update(from: taskItems)
-            selectedTask = tasks.tasks.first
+            updateTasksSorted()
         }
         .onChange(of: selectedMode) { _, newMode in
             focused = true
             editing = false
         }
-        .onChange(of: taskItems) { _, _ in
-            tasks.update(from: taskItems)
+        .onChange(of: tasks) { _, _ in
+            updateTasksSorted()
         }
-        .onChange(of: selectedTask) { _, newTask in
-            if newTask == nil {
-                selectedTask = tasks.tasks.first
-            }
+        .onChange(of: tasksSorted) { _, _ in
+            updateTasksFiltered()
         }
         .onKeyPress(.upArrow) {
             if editing || searchFocused {
@@ -110,11 +107,27 @@ struct ContentView: View {
         }
     }
     
+    private func updateTasksSorted() {
+        tasksSorted = TasksSorted(tasks: tasks)
+    }
+    
+    private func updateTasksFiltered() {
+        tasksFiltered = TasksFiltered(tasksSorted: tasksSorted, taskFilter: taskFilter, searchText: searchText)
+    }
+    
     private func selectPreviousTask() {
-        selectedTask = tasks.selectPrevious(from: selectedTask)
+        if let prevTask = selectedTask?.prevTask {
+            selectedTask = prevTask
+        } else {
+            selectedTask = tasksFiltered.last
+        }
     }
     
     private func selectNextTask() {
-        selectedTask = tasks.selectNext(from: selectedTask)
+        if let nextTask = selectedTask?.nextTask {
+            selectedTask = nextTask
+        } else {
+            selectedTask = tasksFiltered.first
+        }
     }
 }
