@@ -3,12 +3,18 @@ import SwiftData
 import AppKit
 
 extension Notification.Name {
-    static let editTask = Notification.Name("editTask")
-    static let findTask = Notification.Name("findTask")
-    static let newTask = Notification.Name("newTask")
-    static let releaseFocus = Notification.Name("releaseFocus")
-    static let selectPrevious = Notification.Name("selectPrevious")
-    static let selectNext = Notification.Name("selectNext")
+    static let modeSet = Notification.Name("modeSet")
+    
+    static let filterSet = Notification.Name("filterSet")
+    static let filterCycle = Notification.Name("filterCycle")
+    
+    static let taskEdit = Notification.Name("taskEdit")
+    static let taskFind = Notification.Name("taskFind")
+    static let taskDelete = Notification.Name("taskDelete")
+    static let taskPrevious = Notification.Name("taskPrevious")
+    static let taskNext = Notification.Name("taskNext")
+    
+    static let focusRelease = Notification.Name("focusRelease")
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -20,9 +26,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 @main
 struct TaskApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @State private var selectedTask: TaskItem? = nil
-    @State private var selectedMode: ViewMode = .addTask
-    @State private var taskFilter: TaskFilter = .incomplete
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -40,11 +43,7 @@ struct TaskApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(
-                modeSelected: $selectedMode,
-                taskFilter: $taskFilter,
-                taskSelected: $selectedTask,
-            )
+            ContentView()
                 .frame(minWidth: 800, minHeight: 600)
                 .accentColor(.purple)
         }
@@ -72,77 +71,61 @@ struct TaskApp: App {
             }
             CommandMenu("Mode") {
                 Button("New") {
-                    selectedMode = .addTask
-                    NotificationCenter.default.post(name: .newTask, object: nil)
+                    NotificationCenter.default.post(name: .modeSet, object: ViewMode.new)
                 }
                 .keyboardShortcut("n", modifiers: .command)
                 
                 Button("List") {
-                    selectedMode = .list
+                    NotificationCenter.default.post(name: .modeSet, object: ViewMode.list)
                 }
                 .keyboardShortcut("l", modifiers: .command)
                 
                 Button("One") {
-                    selectedMode = .focus
+                    NotificationCenter.default.post(name: .modeSet, object: ViewMode.one)
                 }
                 .keyboardShortcut("o", modifiers: .command)
                 
                 Button("Prioritize") {
-                    selectedMode = .prioritize
+                    NotificationCenter.default.post(name: .modeSet, object: ViewMode.prioritize)
                 }
                 .keyboardShortcut("p", modifiers: .command)
             }
             CommandMenu("Filter") {
                 Button("Incomplete") {
-                    taskFilter = .incomplete
+                    NotificationCenter.default.post(name: .filterSet, object: TaskFilter.incomplete)
                 }
                 
                 Button("All") {
-                    taskFilter = .all
+                    NotificationCenter.default.post(name: .filterSet, object: TaskFilter.all)
                 }
                 
                 Button("Complete") {
-                    taskFilter = .complete
+                    NotificationCenter.default.post(name: .filterSet, object: TaskFilter.complete)
                 }
                 
                 Divider()
                 
                 Button("Cycle") {
-                    switch taskFilter {
-                    case .incomplete:
-                        taskFilter = .all
-                    case .all:
-                        taskFilter = .complete
-                    case .complete:
-                        taskFilter = .incomplete
-                    }
+                    NotificationCenter.default.post(name: .filterCycle, object: nil)
                 }
                 .keyboardShortcut("i", modifiers: .command)
             }
             CommandMenu("Task") {
                 Button("Edit") {
-                    NotificationCenter.default.post(name: .editTask, object: nil)
+                    NotificationCenter.default.post(name: .taskEdit, object: nil)
                 }
                 .keyboardShortcut("e", modifiers: .command)
                 
                 Button("Find") {
-                    NotificationCenter.default.post(name: .findTask, object: nil)
+                    NotificationCenter.default.post(name: .taskFind, object: nil)
                 }
                 .keyboardShortcut("f", modifiers: .command)
                 
                 Divider()
                 
                 Button("Delete") {
-                    guard let task = selectedTask else {
-                        return
-                    }
-                    guard let context = task.modelContext else {
-                        return
-                    }
-                    context.delete(task)
-                    selectedTask = nil
+                    NotificationCenter.default.post(name: .taskDelete, object: nil)
                 }
-                .disabled(selectedTask == nil)
             }
         }
     }

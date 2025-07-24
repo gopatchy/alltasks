@@ -5,13 +5,14 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     
     @Query private var comparisons: [Comparison] // TODO: Remove
-    @Binding var modeSelected: ViewMode
+    
+    @State var modeSelected: ViewMode = .list
     
     @Query private var tasks: [TaskItem]
     @State private var tasksSorted = TasksSorted()
     @State private var tasksFiltered = TasksFiltered()
-    @Binding var taskFilter: TaskFilter
-    @Binding var taskSelected: TaskItem?
+    @State var taskFilter: TaskFilter = .incomplete
+    @State var taskSelected: TaskItem? = nil
 
     @State private var searchText = ""
     @FocusState private var searchFocused: Bool
@@ -38,12 +39,12 @@ struct ContentView: View {
                         taskSelected: $taskSelected,
                         editing: $editing
                     )
-                case .addTask:
+                case .new:
                     NewModeView(
                         tasksSorted: $tasksSorted,
                         editing: $editing
                     )
-                case .focus:
+                case .one:
                     OneModeView(
                         taskSelected: $taskSelected,
                         editing: $editing
@@ -109,17 +110,34 @@ struct ContentView: View {
             focused = true
             return .handled
         }
-        .onReceive(NotificationCenter.default.publisher(for: .releaseFocus)) { _ in
+        
+        .onReceive(NotificationCenter.default.publisher(for: .focusRelease)) { _ in
             focused = true
         }
-        .onReceive(NotificationCenter.default.publisher(for: .findTask)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .modeSet)) { notification in
+            modeSelected = notification.object as! ViewMode
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .filterSet)) { notification in
+            taskFilter = notification.object as! TaskFilter
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .filterCycle)) { _ in
+            switch taskFilter {
+            case .incomplete:
+                taskFilter = .all
+            case .all:
+                taskFilter = .complete
+            case .complete:
+                taskFilter = .incomplete
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .taskFind)) { _ in
             searchText = ""
             searchFocused = true
         }
-        .onReceive(NotificationCenter.default.publisher(for: .selectPrevious)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .taskPrevious)) { _ in
             selectPreviousTask()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .selectNext)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .taskNext)) { _ in
             selectNextTask()
         }
     }

@@ -38,7 +38,11 @@ struct NewModeView: View {
                 try? modelContext.save()
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .newTask)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .modeSet)) { notification in
+            guard notification.object as? ViewMode == .new else {
+                return
+            }
+            
             if taskInserted {
                 createNewTask()
             }

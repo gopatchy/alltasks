@@ -77,9 +77,9 @@ struct TaskDetailCard: View {
         .onChange(of: detailsFocused) {
             editing = detailsFocused
         }
-        .onReceive(NotificationCenter.default.publisher(for: .editTask)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .taskEdit)) { _ in
             if releaseFocus && (titleFocused || detailsFocused) {
-                NotificationCenter.default.post(name: .releaseFocus, object: nil)
+                NotificationCenter.default.post(name: .focusRelease, object: nil)
             } else {
                 titleFocused = true
             }

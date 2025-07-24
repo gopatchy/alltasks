@@ -17,7 +17,7 @@ struct OneModeView: View {
                     
                     VStack(spacing: 20) {
                         Button(action: {
-                            NotificationCenter.default.post(name: .selectPrevious, object: nil)
+                            NotificationCenter.default.post(name: .taskPrevious, object: nil)
                         }) {
                             Image(systemName: "chevron.up")
                                 .font(.title)
@@ -27,7 +27,7 @@ struct OneModeView: View {
                         .glassEffect(in: Circle())
                         
                         Button(action: {
-                            NotificationCenter.default.post(name: .selectNext, object: nil)
+                            NotificationCenter.default.post(name: .taskNext, object: nil)
                         }) {
                             Image(systemName: "chevron.down")
                                 .font(.title)
