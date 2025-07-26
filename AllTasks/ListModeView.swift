@@ -58,11 +58,6 @@ struct ListModeView: View {
                 }
                 .frame(minWidth: 250)
                 .onAppear {
-                    // Select first task if none selected
-                    if taskSelected == nil {
-                        taskSelected = tasksFiltered.first
-                    }
-                    // Scroll to selected task when view appears
                     if let task = taskSelected {
                         proxy.scrollTo(task.id, anchor: .center)
                     }

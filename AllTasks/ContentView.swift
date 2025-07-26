@@ -11,8 +11,8 @@ struct ContentView: View {
     @Query private var tasks: [TaskItem]
     @State private var tasksSorted = TasksSorted()
     @State private var tasksFiltered = TasksFiltered()
-    @State var taskFilter: TaskFilter = .incomplete
-    @State var taskSelected: TaskItem? = nil
+    @State private var taskFilter: TaskFilter = .incomplete
+    @State private var taskSelected: TaskItem? = nil
 
     @State private var searchText = ""
     @FocusState private var searchFocused: Bool
