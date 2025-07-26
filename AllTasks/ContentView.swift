@@ -46,6 +46,35 @@ struct ContentView: View {
             focused = true
             updateTasksSorted()
         }
+        .onKeyPress(.upArrow) {
+            if editing || searchFocused {
+                return .ignored
+            }
+            
+            selectPreviousTask()
+            
+            return .handled
+        }
+        .onKeyPress(.downArrow) {
+            if editing || searchFocused {
+                return .ignored
+            }
+            
+            selectNextTask()
+            
+            return .handled
+        }
+        .onKeyPress(.escape) {
+            focused = true
+            return .handled
+        }
+
+        onChangeView
+        onReceiveView
+    }
+    
+    private var onChangeView: some View {
+        EmptyView()
         .onChange(of: modeSelected) { _, newMode in
             focused = true
             editing = false
@@ -69,29 +98,10 @@ struct ContentView: View {
                 taskSelected = tasksFiltered.first
             }
         }
-        .onKeyPress(.upArrow) {
-            if editing || searchFocused {
-                return .ignored
-            }
-            
-            selectPreviousTask()
-            
-            return .handled
-        }
-        .onKeyPress(.downArrow) {
-            if editing || searchFocused {
-                return .ignored
-            }
-            
-            selectNextTask()
-            
-            return .handled
-        }
-        .onKeyPress(.escape) {
-            focused = true
-            return .handled
-        }
-        
+    }
+    
+    private var onReceiveView: some View {
+        EmptyView()
         .onReceive(NotificationCenter.default.publisher(for: .focusRelease)) { _ in
             focused = true
         }
