@@ -83,7 +83,7 @@ struct ContentView: View {
     
     private var onChangeView: some View {
         EmptyView()
-        .onChange(of: modeSelected) { _, newMode in
+        .onChange(of: modeSelected) { _, _ in
             focused = true
             editing = false
         }
