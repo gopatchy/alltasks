@@ -3,7 +3,7 @@ import SwiftData
 
 struct OneModeView: View {
     @Environment(\.modelContext) private var modelContext
-    @Binding var taskSelected: TaskItem?
+    var taskSelected: TaskItem?
     @Binding var editing: Bool
     
     var body: some View {

@@ -4,7 +4,7 @@ import SwiftData
 struct ListModeView: View {
     @Environment(\.modelContext) private var modelContext
     @Binding var tasksFiltered: TasksFiltered
-    @Binding var taskSelected: TaskItem?
+    var taskSelected: TaskItem?
     @Binding var editing: Bool
     
     var body: some View {
@@ -42,7 +42,7 @@ struct ListModeView: View {
                                         .stroke(taskSelected?.id == task.id ? Color.accentColor.opacity(0.3) : Color.clear, lineWidth: 1)
                                 )
                                 .onTapGesture {
-                                    taskSelected = task
+                                    NotificationCenter.default.post(name: .taskSelect, object: task)
                                 }
                                 .id(task.id)
                             }

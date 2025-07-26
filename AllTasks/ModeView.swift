@@ -5,7 +5,7 @@ struct ModeView: View {
     @Binding var modeSelected: ViewMode
     @Binding var tasksSorted: TasksSorted
     @Binding var tasksFiltered: TasksFiltered
-    @Binding var taskSelected: TaskItem?
+    var taskSelected: TaskItem?
     @Binding var editing: Bool
     
     var body: some View {
@@ -14,7 +14,7 @@ struct ModeView: View {
             case .list:
                 ListModeView(
                     tasksFiltered: $tasksFiltered,
-                    taskSelected: $taskSelected,
+                    taskSelected: taskSelected,
                     editing: $editing
                 )
             case .new:
@@ -24,7 +24,7 @@ struct ModeView: View {
                 )
             case .one:
                 OneModeView(
-                    taskSelected: $taskSelected,
+                    taskSelected: taskSelected,
                     editing: $editing
                 )
             case .prioritize:

@@ -35,7 +35,7 @@ struct ContentView: View {
                 modeSelected: $modeSelected,
                 tasksSorted: $tasksSorted,
                 tasksFiltered: $tasksFiltered,
-                taskSelected: $taskSelected,
+                taskSelected: taskSelected,
                 editing: $editing,
             )
         }
@@ -130,6 +130,9 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .taskNext)) { _ in
             selectNextTask()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .taskSelect)) { notification in
+            taskSelected = notification.object as! TaskItem?
         }
     }
     

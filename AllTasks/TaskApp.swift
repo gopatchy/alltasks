@@ -13,6 +13,7 @@ extension Notification.Name {
     static let taskDelete = Notification.Name("taskDelete")
     static let taskPrevious = Notification.Name("taskPrevious")
     static let taskNext = Notification.Name("taskNext")
+    static let taskSelect = Notification.Name("taskSelect")
     
     static let focusRelease = Notification.Name("focusRelease")
 }
