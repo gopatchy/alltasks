@@ -20,17 +20,13 @@ extension TasksSorted {
         self.reserveCapacity(taskByID.count)
         
         while let task = iter {
-            if let prevID = task.prevID {
-                task.prevTask = taskByID[prevID]
-            }
-            
-            if let nextID = task.nextID {
-                task.nextTask = taskByID[nextID]
-            }
-            
             self.append(task)
             
-            iter = task.nextTask
+            if let nextID = task.nextID {
+                iter = taskByID[nextID]
+            } else {
+                break
+            }
         }
     }
 }

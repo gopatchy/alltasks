@@ -11,9 +11,6 @@ final class TaskItem: Codable {
     var prevID: UUID?
     var nextID: UUID?
     
-    @Transient var prevTask: TaskItem?
-    @Transient var nextTask: TaskItem?
-    
     init(title: String, details: String = "", complete: Bool = false, previousID: UUID? = nil, nextID: UUID? = nil) {
         self.title = title
         self.details = details
