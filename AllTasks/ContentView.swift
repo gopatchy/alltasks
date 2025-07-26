@@ -31,32 +31,13 @@ struct ContentView: View {
             
             Divider()
             
-            Group {
-                switch modeSelected {
-                case .list:
-                    ListModeView(
-                        tasksFiltered: $tasksFiltered,
-                        taskSelected: $taskSelected,
-                        editing: $editing
-                    )
-                case .new:
-                    NewModeView(
-                        tasksSorted: $tasksSorted,
-                        editing: $editing
-                    )
-                case .one:
-                    OneModeView(
-                        taskSelected: $taskSelected,
-                        editing: $editing
-                    )
-                case .prioritize:
-                    PrioritizeModeView(
-                        editing: $editing
-                    )
-                }
-            }
-            .focusable()
-            .focusEffectDisabled()
+            ModeView(
+                modeSelected: $modeSelected,
+                tasksSorted: $tasksSorted,
+                tasksFiltered: $tasksFiltered,
+                taskSelected: $taskSelected,
+                editing: $editing,
+            )
         }
         .focusable()
         .focused($focused)
