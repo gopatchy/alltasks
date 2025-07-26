@@ -6,8 +6,7 @@ struct NewModeView: View {
     @State private var taskNew: TaskItem = TaskItem(title: "")
     @State private var taskInserted: Bool = false
     @State private var taskId: UUID = UUID()
-    
-    var tasksSorted: TasksSorted
+    var tasks: Tasks
     @Binding var editing: Bool
     
     var body: some View {
@@ -27,14 +26,8 @@ struct NewModeView: View {
         }
         .onChange(of: taskNew.title) { oldValue, newValue in
             if !taskInserted && !newValue.isEmpty {
-                try! modelContext.transaction {
-                    if let firstTask = tasksSorted.first {
-                        taskNew.nextID = firstTask.id
-                        firstTask.prevID = taskNew.id
-                    }
-                    modelContext.insert(taskNew)
-                    taskInserted = true
-                }
+                tasks.insert(task: taskNew, modelContext: modelContext)
+                taskInserted = true
             } else if taskInserted && !newValue.isEmpty {
                 try? modelContext.save()
             }

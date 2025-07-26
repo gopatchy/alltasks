@@ -3,7 +3,7 @@ import SwiftData
 
 struct ModeView: View {
     var modeSelected: ViewMode
-    var tasksSorted: TasksSorted
+    var tasks: Tasks
     var tasksFiltered: TasksFiltered
     var taskSelected: TaskItem?
     @Binding var editing: Bool
@@ -19,7 +19,7 @@ struct ModeView: View {
                 )
             case .new:
                 NewModeView(
-                    tasksSorted: tasksSorted,
+                    tasks: tasks,
                     editing: $editing
                 )
             case .one:

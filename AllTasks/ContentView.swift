@@ -8,8 +8,7 @@ struct ContentView: View {
     
     @State var modeSelected: ViewMode = .list
     
-    @Query private var tasks: [TaskItem]
-    @State private var tasksSorted = TasksSorted()
+    @Query(sort: \TaskItem.priority, order: .reverse) private var tasks: Tasks
     @State private var tasksFiltered = TasksFiltered()
     @State private var taskFilter: TaskFilter = .incomplete
     @State private var taskSelectedIndex: Int = 0
@@ -41,7 +40,7 @@ struct ContentView: View {
             
             ModeView(
                 modeSelected: modeSelected,
-                tasksSorted: tasksSorted,
+                tasks: tasks,
                 tasksFiltered: tasksFiltered,
                 taskSelected: taskSelected,
                 editing: $editing,
@@ -52,7 +51,7 @@ struct ContentView: View {
         .focusEffectDisabled()
         .onAppear {
             focused = true
-            updateTasksSorted()
+            updateTasksFiltered()
         }
         .onKeyPress(.upArrow) {
             if editing || searchFocused {
@@ -88,9 +87,6 @@ struct ContentView: View {
             editing = false
         }
         .onChange(of: tasks) { _, _ in
-            updateTasksSorted()
-        }
-        .onChange(of: tasksSorted) { _, _ in
             updateTasksFiltered()
         }
         .onChange(of: taskFilter) { _, _ in
@@ -153,12 +149,8 @@ struct ContentView: View {
         }
     }
     
-    private func updateTasksSorted() {
-        tasksSorted = TasksSorted(tasks: tasks)
-    }
-    
     private func updateTasksFiltered() {
-        tasksFiltered = TasksFiltered(tasksSorted: tasksSorted, taskFilter: taskFilter, searchText: searchText)
+        tasksFiltered = TasksFiltered(tasks: tasks, taskFilter: taskFilter, searchText: searchText)
     }
     
     private func selectPreviousTask() {

@@ -3,10 +3,10 @@ import Foundation
 typealias TasksFiltered = [TaskItem]
 
 extension TasksFiltered {
-    init(tasksSorted: TasksSorted, taskFilter: TaskFilter, searchText: String) {
+    init(tasks: Tasks, taskFilter: TaskFilter, searchText: String) {
         self.init()
         
-        for task in tasksSorted {
+        for task in tasks {
             if task.matches(taskFilter: taskFilter, searchText: searchText) {
                 self.append(task)
             }
