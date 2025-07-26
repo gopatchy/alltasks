@@ -12,13 +12,21 @@ struct ContentView: View {
     @State private var tasksSorted = TasksSorted()
     @State private var tasksFiltered = TasksFiltered()
     @State private var taskFilter: TaskFilter = .incomplete
-    @State private var taskSelected: TaskItem? = nil
+    @State private var taskSelectedIndex: Int = 0
 
     @State private var searchText = ""
     @FocusState private var searchFocused: Bool
     
     @State private var editing = false
     @FocusState private var focused: Bool
+    
+    private var taskSelected: TaskItem? {
+        guard taskSelectedIndex < tasksFiltered.count else {
+            return nil
+        }
+        
+        return tasksFiltered[taskSelectedIndex]
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -91,11 +99,17 @@ struct ContentView: View {
         .onChange(of: searchText) { _, _ in
             updateTasksFiltered()
         }
-        .onChange(of: tasksFiltered) { _, _ in
-            if let task = tasksFiltered.first(where: { $0.id == taskSelected?.id }) {
-                taskSelected = task
+        .onChange(of: tasksFiltered) { oldTasks, newTasks in
+            guard oldTasks.count > 0 else {
+                return
+            }
+
+            let oldSelected = oldTasks[taskSelectedIndex]
+
+            if let i = newTasks.firstIndex(where: { $0.id == oldSelected.id }) {
+                taskSelectedIndex = i
             } else {
-                taskSelected = tasksFiltered.first
+                taskSelectedIndex = 0
             }
         }
     }
@@ -132,7 +146,10 @@ struct ContentView: View {
             selectNextTask()
         }
         .onReceive(NotificationCenter.default.publisher(for: .taskSelect)) { notification in
-            taskSelected = notification.object as! TaskItem?
+            let task = notification.object as! TaskItem
+            if let i = tasksFiltered.firstIndex(where: { $0.id == task.id }) {
+                taskSelectedIndex = i
+            }
         }
     }
     
@@ -145,18 +162,18 @@ struct ContentView: View {
     }
     
     private func selectPreviousTask() {
-        if let prevTask = taskSelected?.prevTask {
-            taskSelected = prevTask
-        } else {
-            taskSelected = tasksFiltered.last
-        }
+        selectTask(offset: -1)
     }
     
     private func selectNextTask() {
-        if let nextTask = taskSelected?.nextTask {
-            taskSelected = nextTask
-        } else {
-            taskSelected = tasksFiltered.first
+        selectTask(offset: 1)
+    }
+    
+    private func selectTask(offset: Int) {
+        guard tasksFiltered.count > 0 else {
+            return
         }
+        
+        taskSelectedIndex = (taskSelectedIndex + offset) % tasksFiltered.count
     }
 }
