@@ -2,9 +2,9 @@ import SwiftUI
 import SwiftData
 
 struct ModeView: View {
-    @Binding var modeSelected: ViewMode
-    @Binding var tasksSorted: TasksSorted
-    @Binding var tasksFiltered: TasksFiltered
+    var modeSelected: ViewMode
+    var tasksSorted: TasksSorted
+    var tasksFiltered: TasksFiltered
     var taskSelected: TaskItem?
     @Binding var editing: Bool
     
@@ -13,13 +13,13 @@ struct ModeView: View {
             switch modeSelected {
             case .list:
                 ListModeView(
-                    tasksFiltered: $tasksFiltered,
+                    tasksFiltered: tasksFiltered,
                     taskSelected: taskSelected,
                     editing: $editing
                 )
             case .new:
                 NewModeView(
-                    tasksSorted: $tasksSorted,
+                    tasksSorted: tasksSorted,
                     editing: $editing
                 )
             case .one:

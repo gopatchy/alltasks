@@ -6,7 +6,8 @@ struct NewModeView: View {
     @State private var taskNew: TaskItem = TaskItem(title: "")
     @State private var taskInserted: Bool = false
     @State private var taskId: UUID = UUID()
-    @Binding var tasksSorted: TasksSorted
+    
+    var tasksSorted: TasksSorted
     @Binding var editing: Bool
     
     var body: some View {

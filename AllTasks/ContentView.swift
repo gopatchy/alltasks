@@ -32,9 +32,9 @@ struct ContentView: View {
             Divider()
             
             ModeView(
-                modeSelected: $modeSelected,
-                tasksSorted: $tasksSorted,
-                tasksFiltered: $tasksFiltered,
+                modeSelected: modeSelected,
+                tasksSorted: tasksSorted,
+                tasksFiltered: tasksFiltered,
                 taskSelected: taskSelected,
                 editing: $editing,
             )

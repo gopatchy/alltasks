@@ -3,7 +3,7 @@ import SwiftData
 
 struct ListModeView: View {
     @Environment(\.modelContext) private var modelContext
-    @Binding var tasksFiltered: TasksFiltered
+    var tasksFiltered: TasksFiltered
     var taskSelected: TaskItem?
     @Binding var editing: Bool
     
